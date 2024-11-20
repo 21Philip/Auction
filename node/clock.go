@@ -1,5 +1,14 @@
 package main
 
+type CompareResult int
+
+const (
+	HappenedBefore CompareResult = iota
+	HappenedAfter
+	HappenedConcurrently
+	Incomparable
+)
+
 type VectorClock struct {
 	vector map[int]int // idx -> timestamp
 }
@@ -20,7 +29,7 @@ func (vc *VectorClock) merge(other VectorClock) {
 	}
 }
 
-func (vc *VectorClock) compareTo(other VectorClock) int {
+func (vc *VectorClock) compareTo(other VectorClock) CompareResult {
 	equal := true
 	lessOrEqual := true
 
