@@ -10,6 +10,7 @@ import (
 
 	pb "github.com/21Philip/Auction/grpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Node struct {
@@ -86,7 +87,7 @@ func main() {
 	for i := range peerAmount {
 		peerAddr := ":" + strconv.Itoa(basePort+i)
 
-		conn, err := grpc.NewClient(peerAddr)
+		conn, err := grpc.NewClient(peerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			fmt.Printf("ERROR: Node %d could not connect to %s: %v\n", node.id, addr, err)
 			continue
