@@ -15,18 +15,18 @@ import (
 
 type Node struct {
 	pb.NodeServer
-	id          int
-	addr        string
-	peers       map[int]pb.NodeClient // id -> node
-	vectorClock vectorClock
+	id    int
+	addr  string
+	peers map[int]pb.NodeClient // id -> node
+	clock *VectorClock
 }
 
 func NewNode(id int, addr string) *Node {
 	return &Node{
-		id:          id,
-		addr:        addr,
-		peers:       make(map[int]pb.NodeClient),
-		vectorClock: make(map[int]int),
+		id:    id,
+		addr:  addr,
+		peers: make(map[int]pb.NodeClient),
+		clock: NewVectorClock(),
 	}
 }
 
@@ -94,7 +94,6 @@ func main() {
 		}
 
 		node.peers[i] = pb.NewNodeClient(conn)
-		node.vectorClock[i] = 0
 	}
 
 	node.start()

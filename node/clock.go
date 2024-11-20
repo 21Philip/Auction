@@ -1,23 +1,26 @@
 package main
 
-type vectorClock map[int]int
-
-func (n *Node) incrementClock() {
-	n.vectorClock[n.id]++
+type VectorClock struct {
+	vector map[int]int // idx -> timestamp
 }
 
-func (n *Node) mergeClock(recievedClock vectorClock) {
-	for id, clock := range recievedClock {
-		n.vectorClock[id] = max(n.vectorClock[id], clock)
+func NewVectorClock() *VectorClock {
+	return &VectorClock{
+		vector: make(map[int]int),
 	}
 }
 
-// Compare clocks return values:
-// -1 if a happens before b
-//
-//	0 if a and b are concurrent
-//	1 if b happens before a
-func compareClocks(a, b vectorClock) int {
+func (vc *VectorClock) incrementTimestamp(idx int) {
+	vc.vector[idx]++
+}
+
+func (vc *VectorClock) merge(other VectorClock) {
+	for idx, timestamp := range other.vector {
+		vc.vector[idx] = max(vc.vector[idx], timestamp)
+	}
+}
+
+func (vc *VectorClock) compareTo(other VectorClock) int {
 	equal := true
 	lessOrEqual := true
 
@@ -54,3 +57,8 @@ func compareClocks(a, b vectorClock) int {
 
 	return 0 //a || b
 }
+
+// Compare clocks return values:
+// -1 if a happens before b
+//	0 if a and b are concurrent
+//	1 if b happens before a
