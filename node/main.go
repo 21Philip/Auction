@@ -1,4 +1,4 @@
-package node
+package main
 
 import (
 	pb "github.com/21Philip/Auction/grpc"
