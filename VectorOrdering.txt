@@ -1,0 +1,39 @@
+	// a = b
+	holds0 := true
+	for id, clockA := range a {
+		clockB := b[id]
+		if clockA != clockB {
+			holds0 = false
+		}
+	}
+
+    if holds0 {
+        return "incomparable"
+    }
+
+	// a<=b
+	holds1 := true
+	for id, clockA := range a {
+		clockB := b[id]
+		if clockA > clockB {
+			holds1 = false
+		}
+	}
+
+	// b<=a
+	holds2 := true
+	for id, clockB := range a {
+		clockA := a[id]
+		if clockB > clockA {
+			holds2 = false
+		}
+	}
+
+	// a < b
+	!holds0 && holds1
+
+	// b < a
+	!holds0 && holds2
+
+	// a || b
+	!holds1 && !holds2

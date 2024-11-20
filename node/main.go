@@ -4,27 +4,82 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"sync"
+
+	//"os"
+	//"strconv"
 	"time"
 
 	pb "github.com/21Philip/Auction/grpc"
 	"google.golang.org/grpc"
 )
 
+type vectorClock map[int32]int32
+
 type Node struct {
 	pb.NodeServer
-	id   int32
-	addr string
+	id          int32
+	addr        string
+	peers       map[int]*Node // id -> node
+	vectorClock vectorClock
 }
 
-func NewNode(id int32, addr string) *Node {
+func NewNode(id int32, addr string, peerIDs []int32) *Node {
+	clock := make(map[int32]int32)
+	for _, peerID := range peerIDs {
+		clock[peerID] = 0
+	}
+	clock[id] = 0
+
 	return &Node{
 		id:   id,
 		addr: addr,
+		//peers:       make([]*Node, 0),
+		vectorClock: clock,
 	}
 }
 
 var peers = make([]*Node, 0)
+
+func (n *Node) incrementClock() {
+	n.vectorClock[n.id]++
+}
+
+func (n *Node) mergeClock(recievedClock vectorClock) {
+	for id, clock := range recievedClock {
+		n.vectorClock[id] = max(n.vectorClock[id], clock)
+	}
+}
+
+// Compare clocks return values:
+// -1 if a happens before b
+//
+//	0 if a and b are concurrent
+//	1 if b happens before a
+func compareClocks(a, b vectorClock) int {
+	aHappenedBeforeB := false
+	bHappenedBeforeA := false
+
+	for id, clockA := range a {
+		clockB := b[id]
+
+		//a [10, 1]
+		//b [1, 10]
+
+		if clockA < clockB {
+			bHappenedBeforeA = true
+		} else if clockA > clockB {
+			aHappenedBeforeB = true
+		}
+	}
+
+	if aHappenedBeforeB {
+		return -1
+	} else if bHappenedBeforeA {
+		return 1
+	} else {
+		return 0
+	}
+}
 
 func (n *Node) start() {
 	grpcServer := grpc.NewServer()
@@ -59,14 +114,30 @@ func (n *Node) TestCall(_ context.Context, in *pb.Empty) (*pb.Empty, error) {
 }
 
 func main() {
-	n0 := NewNode(0, ":50050")
-	n1 := NewNode(1, ":50051")
+	/*
+		if len(os.Args) != 3 {
+			fmt.Printf("ERROR: A node could not be created. REASON: Given invalid number of arguments")
+			return
+		}
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
+		nodeId, err := strconv.Atoi(os.Args[1])
+		if err != nil {
+			fmt.Printf("ERROR: A node could not be created. REASON: Given invalid id %s", os.Args[1])
+			return
+		}
 
-	go n0.start()
-	go n1.start()
+		peerAmount, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			fmt.Printf("ERROR: Node %d could not be created. REASON: Given invalid amount of peers %s", nodeId, os.Args[2])
+			return
+		}
 
-	wg.Wait()
+		for i := range peerAmount {
+
+		}
+
+		port := 50050 + nodeId
+		nodeAddress := ":" + strconv.Itoa(port)
+	*/
+
 }
