@@ -1,0 +1,8 @@
+syntax = "proto3";
+option go_package = "github.com/21Philip/Auction/grpc";
+
+service Node {
+    rpc Test (Empty) returns (Empty);
+}
+
+message Empty {}
