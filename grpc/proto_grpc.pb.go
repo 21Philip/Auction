@@ -30,7 +30,7 @@ const (
 type NodeClient interface {
 	TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	Bid(ctx context.Context, in *Amount, opts ...grpc.CallOption) (*Ack, error)
-	Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Amount, error)
+	Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Outcome, error)
 }
 
 type nodeClient struct {
@@ -61,9 +61,9 @@ func (c *nodeClient) Bid(ctx context.Context, in *Amount, opts ...grpc.CallOptio
 	return out, nil
 }
 
-func (c *nodeClient) Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Amount, error) {
+func (c *nodeClient) Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Outcome, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Amount)
+	out := new(Outcome)
 	err := c.cc.Invoke(ctx, Node_Result_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (c *nodeClient) Result(ctx context.Context, in *Empty, opts ...grpc.CallOpt
 type NodeServer interface {
 	TestCall(context.Context, *Empty) (*Empty, error)
 	Bid(context.Context, *Amount) (*Ack, error)
-	Result(context.Context, *Empty) (*Amount, error)
+	Result(context.Context, *Empty) (*Outcome, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -94,7 +94,7 @@ func (UnimplementedNodeServer) TestCall(context.Context, *Empty) (*Empty, error)
 func (UnimplementedNodeServer) Bid(context.Context, *Amount) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Bid not implemented")
 }
-func (UnimplementedNodeServer) Result(context.Context, *Empty) (*Amount, error) {
+func (UnimplementedNodeServer) Result(context.Context, *Empty) (*Outcome, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Result not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
