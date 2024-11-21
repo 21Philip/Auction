@@ -8,7 +8,7 @@
 	}
 
     if holds0 {
-        return "incomparable"
+        return "SameEvent"
     }
 
 	// a<=b
@@ -37,14 +37,6 @@
 
 	// a || b
 	!holds1 && !holds2
-
-
-
-
-
-
-
-
 
 
 

@@ -1,56 +1,75 @@
 package main
 
-type vectorClock map[int]int
+type CompareResult int
 
-func (n *Node) incrementClock() {
-	n.vectorClock[n.id]++
+const (
+	HappenedBefore CompareResult = iota
+	HappenedAfter
+	HappenedConcurrently // events are incomparable
+	IsSameEvent
+)
+
+type VectorClock struct {
+	vector map[int]int // idx -> timestamp
 }
 
-func (n *Node) mergeClock(recievedClock vectorClock) {
-	for id, clock := range recievedClock {
-		n.vectorClock[id] = max(n.vectorClock[id], clock)
+func NewVectorClock() *VectorClock {
+	return &VectorClock{
+		vector: make(map[int]int),
 	}
 }
 
-// Compare clocks return values:
-// -1 if a happens before b
-//
-//	0 if a and b are concurrent
-//	1 if b happens before a
-func compareClocks(a, b vectorClock) int {
-	equal := true
-	lessOrEqual := true
+func (vc *VectorClock) incrementTimestamp(idx int) {
+	vc.vector[idx]++
+}
 
-	for id, clockA := range a {
-		clockB := b[id]
-		if clockA != clockB {
-			equal = false
-			if clockA > clockB {
-				lessOrEqual = false
-				break
-			}
+func (vc *VectorClock) getTimestamp(idx int) int {
+	return vc.vector[idx]
+}
+
+func (vc *VectorClock) merge(other VectorClock) {
+	for idx, timestamp := range other.vector {
+		vc.vector[idx] = max(vc.vector[idx], timestamp)
+	}
+}
+
+// Returns whether an event associated with vector clock "vc"
+// happened before, after, or concurrently with another event
+// having vector clock "other".
+// TODO: What if length not same?
+func (vc *VectorClock) compareTo(other VectorClock) CompareResult {
+	areEqual := true
+	otherIsAhead := true
+	otherIsBehind := true
+
+	for idx, timestamp := range vc.vector {
+		otherTimestamp := other.getTimestamp(idx)
+		if timestamp != otherTimestamp {
+			areEqual = false
+		}
+		if timestamp > otherTimestamp {
+			otherIsAhead = false
+		}
+		if timestamp < otherTimestamp {
+			otherIsBehind = false
 		}
 	}
 
-	if equal {
-		return 0 //a = b
-	}
-	if lessOrEqual {
-		return -1 //a <= b
+	// vc = other
+	if areEqual {
+		return IsSameEvent
 	}
 
-	lessOrEqual = true
-	for id, clockB := range b {
-		clockA := a[id]
-		if clockB > clockA {
-			lessOrEqual = false
-			break
-		}
+	// vc -> other
+	if otherIsAhead {
+		return HappenedBefore
 	}
 
-	if lessOrEqual {
-		return 1 // b <= a
+	// other -> vc
+	if otherIsBehind {
+		return HappenedAfter
 	}
 
-	return 0 //a || b
+	// vc || other
+	return HappenedConcurrently
 }
