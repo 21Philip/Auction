@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Node_TestCall_FullMethodName = "/Node/TestCall"
+	Node_Bid_FullMethodName      = "/Node/Bid"
+	Node_Result_FullMethodName   = "/Node/Result"
 )
 
 // NodeClient is the client API for Node service.
@@ -27,6 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
 	TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	Bid(ctx context.Context, in *Amount, opts ...grpc.CallOption) (*Ack, error)
+	Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Amount, error)
 }
 
 type nodeClient struct {
@@ -47,11 +51,33 @@ func (c *nodeClient) TestCall(ctx context.Context, in *Empty, opts ...grpc.CallO
 	return out, nil
 }
 
+func (c *nodeClient) Bid(ctx context.Context, in *Amount, opts ...grpc.CallOption) (*Ack, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Ack)
+	err := c.cc.Invoke(ctx, Node_Bid_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeClient) Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Amount, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Amount)
+	err := c.cc.Invoke(ctx, Node_Result_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServer is the server API for Node service.
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility.
 type NodeServer interface {
 	TestCall(context.Context, *Empty) (*Empty, error)
+	Bid(context.Context, *Amount) (*Ack, error)
+	Result(context.Context, *Empty) (*Amount, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -64,6 +90,12 @@ type UnimplementedNodeServer struct{}
 
 func (UnimplementedNodeServer) TestCall(context.Context, *Empty) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestCall not implemented")
+}
+func (UnimplementedNodeServer) Bid(context.Context, *Amount) (*Ack, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Bid not implemented")
+}
+func (UnimplementedNodeServer) Result(context.Context, *Empty) (*Amount, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Result not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
 func (UnimplementedNodeServer) testEmbeddedByValue()              {}
@@ -104,6 +136,42 @@ func _Node_TestCall_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Node_Bid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Amount)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).Bid(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_Bid_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).Bid(ctx, req.(*Amount))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Node_Result_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).Result(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_Result_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).Result(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Node_ServiceDesc is the grpc.ServiceDesc for Node service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +182,14 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TestCall",
 			Handler:    _Node_TestCall_Handler,
+		},
+		{
+			MethodName: "Bid",
+			Handler:    _Node_Bid_Handler,
+		},
+		{
+			MethodName: "Result",
+			Handler:    _Node_Result_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

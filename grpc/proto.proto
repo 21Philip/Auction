@@ -3,6 +3,16 @@ option go_package = "github.com/21Philip/Auction/grpc";
 
 service Node {
     rpc TestCall (Empty) returns (Empty);
+    rpc Bid (Amount) returns (Ack);
+    rpc Result (Empty) returns (Amount);
+}
+
+message Amount {
+    int32 value = 1;
+}
+
+message Ack {
+    bool success = 1;
 }
 
 message Empty {}
