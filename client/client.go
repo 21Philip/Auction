@@ -61,12 +61,10 @@ func (c *Client) testCall() {
 		return
 	}
 
-	fmt.Printf(reply.String())
+	fmt.Printf(reply.Payload)
 }
 
-type caller func()
-
-func (c *Client) changeNode(retry caller) {
+func (c *Client) changeNode(retry func()) {
 	fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection")
 
 	c.curNode++

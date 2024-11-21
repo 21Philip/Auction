@@ -10,7 +10,6 @@ import (
 
 	pb "github.com/21Philip/Auction/grpc"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 const (
@@ -79,17 +78,7 @@ func (n *Node) simulateAuction(srv *grpc.Server) {
 	fmt.Printf("Simulation of node %d was stopped\n", n.id)
 }
 
-func (n *Node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
+func (n *Node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
 	fmt.Printf("I am node %d\n", n.id)
-
-	md, _ := metadata.FromIncomingContext(ctx)
-	for k, v := range md {
-		fmt.Printf("%s:\n", k)
-		for _, s := range v {
-			fmt.Printf("   %s\n", s)
-		}
-	}
-
-	fmt.Printf("\n")
-	return &pb.Empty{}, nil
+	return &pb.Test{Payload: "response"}, nil
 }
