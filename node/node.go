@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"net"
+	"sync"
 	"time"
 
 	pb "github.com/21Philip/Auction/grpc"
@@ -11,8 +13,15 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+const (
+	initialSleepDuration = 2 * time.Second // Allow other nodes to start at beginning of simulation
+	stepTime             = 1 * time.Second // The time between each step/frame of simulation
+	crashChance          = 10              // The chance of a node to crash at any step. Its calculated as 1/crashChance
+)
+
 type Node struct {
 	pb.NodeServer
+	mu    sync.Mutex
 	id    int
 	addr  string
 	peers map[int]pb.NodeClient // id -> node
@@ -37,20 +46,37 @@ func (n *Node) start() {
 	fmt.Printf("Node %d listening at %v\n", n.id, listener.Addr())
 
 	pb.RegisterNodeServer(grpcServer, n)
-	go n.nodeLogic()
+	go n.simulateAuction(grpcServer)
 
 	if grpcServer.Serve(listener) != nil {
 		fmt.Printf("Failed to serve: %v\n", err)
 	}
+
+	fmt.Printf("Node %d was killed\n", n.id)
 }
 
-func (n *Node) nodeLogic() {
-	time.Sleep(2 * time.Second)
-	for id, peer := range n.peers {
-		if id == n.id+1 {
-			peer.TestCall(context.Background(), &pb.Empty{})
+func (n *Node) simulateAuction(srv *grpc.Server) {
+	lastStep := time.Now()
+	time.Sleep(initialSleepDuration)
+
+	for {
+		if time.Since(lastStep) < stepTime {
+			continue
 		}
+		lastStep = time.Now()
+
+		n.mu.Lock()
+
+		fmt.Printf("Hello from node %d\n", n.id)
+		if rand.Intn(10) == 0 {
+			srv.Stop()
+			break
+		}
+
+		n.mu.Unlock()
 	}
+
+	fmt.Printf("Simulation of node %d was stopped\n", n.id)
 }
 
 func (n *Node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
