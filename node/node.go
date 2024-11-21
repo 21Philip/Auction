@@ -11,6 +11,7 @@ import (
 	pb "github.com/21Philip/Auction/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 type Node struct {
@@ -36,27 +37,37 @@ func (n *Node) start() {
 	if err != nil {
 		fmt.Printf("Unable to start connection to server: %v\n", err)
 	}
-	fmt.Printf("server listening at %v\n", listener.Addr())
+	fmt.Printf("Node %d listening at %v\n", n.id, listener.Addr())
 
 	pb.RegisterNodeServer(grpcServer, n)
 	go n.nodeLogic()
 
 	if grpcServer.Serve(listener) != nil {
-		fmt.Printf("failed to serve: %v\n", err)
+		fmt.Printf("Failed to serve: %v\n", err)
 	}
 }
 
 func (n *Node) nodeLogic() {
 	time.Sleep(2 * time.Second)
 	for id, peer := range n.peers {
-		if id != n.id {
+		if id == n.id+1 {
 			peer.TestCall(context.Background(), &pb.Empty{})
 		}
 	}
 }
 
-func (n *Node) TestCall(_ context.Context, in *pb.Empty) (*pb.Empty, error) {
+func (n *Node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
 	fmt.Printf("I am node %d\n", n.id)
+
+	md, _ := metadata.FromIncomingContext(ctx)
+	for k, v := range md {
+		fmt.Printf("%s:\n", k)
+		for _, s := range v {
+			fmt.Printf("   %s\n", s)
+		}
+	}
+
+	fmt.Printf("\n")
 	return &pb.Empty{}, nil
 }
 
