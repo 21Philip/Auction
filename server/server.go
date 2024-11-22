@@ -10,30 +10,18 @@ import (
 
 var wg = sync.WaitGroup{}
 
-func Start() {
-	if len(os.Args) != 2 {
-		fmt.Printf("FATAL: Incorrect number of arguments\n")
-		return
-	}
-
-	nodeAmountStr := os.Args[1]
-	nodeAmountInt, err := strconv.Atoi(nodeAmountStr)
-	if err != nil {
-		fmt.Printf("FATAL: Could not convert argument %s to int\n", nodeAmountStr)
-		return
-	}
-
-	for i := range nodeAmountInt {
+func StartServer(nodeAmount int) {
+	for i := range nodeAmount {
 		wg.Add(1)
-		go startNode(strconv.Itoa(i), nodeAmountStr)
+		go startNode(strconv.Itoa(i), strconv.Itoa(nodeAmount))
 	}
 
 	wg.Wait()
-	fmt.Printf("Finished!\n")
+	fmt.Printf("Server stopped!\n")
 }
 
 func startNode(nodeId string, nodeAmount string) {
-	cmd := exec.Command("go", "run", "./node", nodeId, nodeAmount)
+	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/server/create-node", nodeId, nodeAmount)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -1,4 +1,4 @@
-package node
+package server
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"time"
 
 	pb "github.com/21Philip/Auction/grpc"
-	clockPkg "github.com/21Philip/Auction/server/clock"
 	"google.golang.org/grpc"
 )
 
@@ -19,25 +18,25 @@ const (
 	crashChance          = 10              // The chance of a node to crash at any step. Its calculated as 1/crashChance
 )
 
-type Node struct {
+type node struct {
 	pb.NodeServer
 	mu    sync.Mutex
 	id    int
 	addr  string
 	peers map[int]pb.NodeClient // id -> node
-	clock *clockPkg.VectorClock
+	clock *vectorClock
 }
 
-func NewNode(id int, addr string, peers map[int]pb.NodeClient) *Node {
-	return &Node{
+func NewNode(id int, addr string, peers map[int]pb.NodeClient) *node {
+	return &node{
 		id:    id,
 		addr:  addr,
 		peers: peers,
-		clock: clockPkg.NewVectorClock(),
+		clock: newVectorClock(),
 	}
 }
 
-func (n *Node) Start() {
+func (n *node) Start() {
 	grpcServer := grpc.NewServer()
 	listener, err := net.Listen("tcp", n.addr)
 	if err != nil {
@@ -55,7 +54,7 @@ func (n *Node) Start() {
 	fmt.Printf("Node %d was killed\n", n.id)
 }
 
-func (n *Node) simulateAuction(srv *grpc.Server) {
+func (n *node) simulateAuction(srv *grpc.Server) {
 	lastStep := time.Now()
 	time.Sleep(initialSleepDuration)
 
@@ -79,7 +78,7 @@ func (n *Node) simulateAuction(srv *grpc.Server) {
 	fmt.Printf("Simulation of node %d was stopped\n", n.id)
 }
 
-func (n *Node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
+func (n *node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
 	fmt.Printf("I am node %d\n", n.id)
 	return &pb.Test{Payload: "response"}, nil
 }

@@ -1,33 +1,33 @@
-package clock
+package server
 
-type CompareResult int
+type compareResult int
 
 const (
-	HappenedBefore CompareResult = iota
+	HappenedBefore compareResult = iota
 	HappenedAfter
 	HappenedConcurrently // events are incomparable
 	IsSameEvent
 )
 
-type VectorClock struct {
+type vectorClock struct {
 	vector map[int]int // idx -> timestamp
 }
 
-func NewVectorClock() *VectorClock {
-	return &VectorClock{
+func newVectorClock() *vectorClock {
+	return &vectorClock{
 		vector: make(map[int]int),
 	}
 }
 
-func (vc *VectorClock) IncrementTimestamp(idx int) {
+func (vc *vectorClock) incrementTimestamp(idx int) {
 	vc.vector[idx]++
 }
 
-func (vc *VectorClock) GetTimestamp(idx int) int {
+func (vc *vectorClock) getTimestamp(idx int) int {
 	return vc.vector[idx]
 }
 
-func (vc *VectorClock) Merge(other VectorClock) {
+func (vc *vectorClock) merge(other vectorClock) {
 	for idx, timestamp := range other.vector {
 		vc.vector[idx] = max(vc.vector[idx], timestamp)
 	}
@@ -37,13 +37,13 @@ func (vc *VectorClock) Merge(other VectorClock) {
 // happened before, after, or concurrently with another event
 // having vector clock "other".
 // TODO: What if length not same?
-func (vc *VectorClock) CompareTo(other VectorClock) CompareResult {
+func (vc *vectorClock) compareTo(other vectorClock) compareResult {
 	areEqual := true
 	otherIsAhead := true
 	otherIsBehind := true
 
 	for idx, timestamp := range vc.vector {
-		otherTimestamp := other.GetTimestamp(idx)
+		otherTimestamp := other.getTimestamp(idx)
 		if timestamp != otherTimestamp {
 			areEqual = false
 		}
