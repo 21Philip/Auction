@@ -10,7 +10,7 @@ service Node {
 
 message Amount {
     int32 bidder = 1;
-    int32 value = 2;
+    int32 amount = 2;
 }
 
 message Ack {
