@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.34.2
 // 	protoc        v3.12.4
-// source: grpc/proto.proto
+// source: internal/grpc/proto.proto
 
 package grpc
 
@@ -32,7 +32,7 @@ type Amount struct {
 func (x *Amount) Reset() {
 	*x = Amount{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_proto_proto_msgTypes[0]
+		mi := &file_internal_grpc_proto_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -45,7 +45,7 @@ func (x *Amount) String() string {
 func (*Amount) ProtoMessage() {}
 
 func (x *Amount) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_proto_proto_msgTypes[0]
+	mi := &file_internal_grpc_proto_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +58,7 @@ func (x *Amount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Amount.ProtoReflect.Descriptor instead.
 func (*Amount) Descriptor() ([]byte, []int) {
-	return file_grpc_proto_proto_rawDescGZIP(), []int{0}
+	return file_internal_grpc_proto_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Amount) GetBidder() int32 {
@@ -86,7 +86,7 @@ type Ack struct {
 func (x *Ack) Reset() {
 	*x = Ack{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_proto_proto_msgTypes[1]
+		mi := &file_internal_grpc_proto_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -99,7 +99,7 @@ func (x *Ack) String() string {
 func (*Ack) ProtoMessage() {}
 
 func (x *Ack) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_proto_proto_msgTypes[1]
+	mi := &file_internal_grpc_proto_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -112,7 +112,7 @@ func (x *Ack) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ack.ProtoReflect.Descriptor instead.
 func (*Ack) Descriptor() ([]byte, []int) {
-	return file_grpc_proto_proto_rawDescGZIP(), []int{1}
+	return file_internal_grpc_proto_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Ack) GetSuccess() bool {
@@ -131,7 +131,7 @@ type Empty struct {
 func (x *Empty) Reset() {
 	*x = Empty{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_proto_proto_msgTypes[2]
+		mi := &file_internal_grpc_proto_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -144,7 +144,7 @@ func (x *Empty) String() string {
 func (*Empty) ProtoMessage() {}
 
 func (x *Empty) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_proto_proto_msgTypes[2]
+	mi := &file_internal_grpc_proto_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -157,7 +157,7 @@ func (x *Empty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Empty.ProtoReflect.Descriptor instead.
 func (*Empty) Descriptor() ([]byte, []int) {
-	return file_grpc_proto_proto_rawDescGZIP(), []int{2}
+	return file_internal_grpc_proto_proto_rawDescGZIP(), []int{2}
 }
 
 type Outcome struct {
@@ -172,7 +172,7 @@ type Outcome struct {
 func (x *Outcome) Reset() {
 	*x = Outcome{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_proto_proto_msgTypes[3]
+		mi := &file_internal_grpc_proto_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -185,7 +185,7 @@ func (x *Outcome) String() string {
 func (*Outcome) ProtoMessage() {}
 
 func (x *Outcome) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_proto_proto_msgTypes[3]
+	mi := &file_internal_grpc_proto_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -198,7 +198,7 @@ func (x *Outcome) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Outcome.ProtoReflect.Descriptor instead.
 func (*Outcome) Descriptor() ([]byte, []int) {
-	return file_grpc_proto_proto_rawDescGZIP(), []int{3}
+	return file_internal_grpc_proto_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Outcome) GetWinner() int32 {
@@ -226,7 +226,7 @@ type Test struct {
 func (x *Test) Reset() {
 	*x = Test{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_proto_proto_msgTypes[4]
+		mi := &file_internal_grpc_proto_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -239,7 +239,7 @@ func (x *Test) String() string {
 func (*Test) ProtoMessage() {}
 
 func (x *Test) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_proto_proto_msgTypes[4]
+	mi := &file_internal_grpc_proto_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -252,7 +252,7 @@ func (x *Test) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Test.ProtoReflect.Descriptor instead.
 func (*Test) Descriptor() ([]byte, []int) {
-	return file_grpc_proto_proto_rawDescGZIP(), []int{4}
+	return file_internal_grpc_proto_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Test) GetPayload() string {
@@ -262,74 +262,78 @@ func (x *Test) GetPayload() string {
 	return ""
 }
 
-var File_grpc_proto_proto protoreflect.FileDescriptor
+var File_internal_grpc_proto_proto protoreflect.FileDescriptor
 
-var file_grpc_proto_proto_rawDesc = []byte{
-	0x0a, 0x10, 0x67, 0x72, 0x70, 0x63, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x22, 0x36, 0x0a, 0x06, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x16, 0x0a, 0x06,
-	0x62, 0x69, 0x64, 0x64, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x62, 0x69,
-	0x64, 0x64, 0x65, 0x72, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x05, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x22, 0x1f, 0x0a, 0x03, 0x41, 0x63,
-	0x6b, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x22, 0x07, 0x0a, 0x05, 0x45,
-	0x6d, 0x70, 0x74, 0x79, 0x22, 0x3f, 0x0a, 0x07, 0x4f, 0x75, 0x74, 0x63, 0x6f, 0x6d, 0x65, 0x12,
-	0x16, 0x0a, 0x06, 0x77, 0x69, 0x6e, 0x6e, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52,
-	0x06, 0x77, 0x69, 0x6e, 0x6e, 0x65, 0x72, 0x12, 0x1c, 0x0a, 0x09, 0x62, 0x69, 0x64, 0x41, 0x6d,
-	0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x62, 0x69, 0x64, 0x41,
-	0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x20, 0x0a, 0x04, 0x54, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a,
-	0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07,
-	0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x32, 0x53, 0x0a, 0x04, 0x4e, 0x6f, 0x64, 0x65, 0x12,
-	0x19, 0x0a, 0x08, 0x54, 0x65, 0x73, 0x74, 0x43, 0x61, 0x6c, 0x6c, 0x12, 0x06, 0x2e, 0x45, 0x6d,
-	0x70, 0x74, 0x79, 0x1a, 0x05, 0x2e, 0x54, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x03, 0x42, 0x69,
-	0x64, 0x12, 0x07, 0x2e, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x1a, 0x04, 0x2e, 0x41, 0x63, 0x6b,
-	0x12, 0x1a, 0x0a, 0x06, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x06, 0x2e, 0x45, 0x6d, 0x70,
-	0x74, 0x79, 0x1a, 0x08, 0x2e, 0x4f, 0x75, 0x74, 0x63, 0x6f, 0x6d, 0x65, 0x42, 0x22, 0x5a, 0x20,
-	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x32, 0x31, 0x50, 0x68, 0x69,
-	0x6c, 0x69, 0x70, 0x2f, 0x41, 0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x67, 0x72, 0x70, 0x63,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+var file_internal_grpc_proto_proto_rawDesc = []byte{
+	0x0a, 0x19, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x67, 0x72, 0x70, 0x63, 0x2f,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x36, 0x0a, 0x06, 0x41,
+	0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x62, 0x69, 0x64, 0x64, 0x65, 0x72, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x62, 0x69, 0x64, 0x64, 0x65, 0x72, 0x12, 0x14, 0x0a,
+	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x76, 0x61,
+	0x6c, 0x75, 0x65, 0x22, 0x1f, 0x0a, 0x03, 0x41, 0x63, 0x6b, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75,
+	0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63,
+	0x63, 0x65, 0x73, 0x73, 0x22, 0x07, 0x0a, 0x05, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x3f, 0x0a,
+	0x07, 0x4f, 0x75, 0x74, 0x63, 0x6f, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x77, 0x69, 0x6e, 0x6e,
+	0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x77, 0x69, 0x6e, 0x6e, 0x65, 0x72,
+	0x12, 0x1c, 0x0a, 0x09, 0x62, 0x69, 0x64, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x05, 0x52, 0x09, 0x62, 0x69, 0x64, 0x41, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x20,
+	0x0a, 0x04, 0x54, 0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64,
+	0x32, 0x6b, 0x0a, 0x04, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x54, 0x65, 0x73, 0x74,
+	0x43, 0x61, 0x6c, 0x6c, 0x12, 0x06, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x05, 0x2e, 0x54,
+	0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x03, 0x42, 0x69, 0x64, 0x12, 0x07, 0x2e, 0x41, 0x6d, 0x6f,
+	0x75, 0x6e, 0x74, 0x1a, 0x04, 0x2e, 0x41, 0x63, 0x6b, 0x12, 0x1a, 0x0a, 0x06, 0x52, 0x65, 0x73,
+	0x75, 0x6c, 0x74, 0x12, 0x06, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x08, 0x2e, 0x4f, 0x75,
+	0x74, 0x63, 0x6f, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x04, 0x53, 0x74, 0x6f, 0x70, 0x12, 0x06, 0x2e,
+	0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x06, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x42, 0x22, 0x5a,
+	0x20, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x32, 0x31, 0x50, 0x68,
+	0x69, 0x6c, 0x69, 0x70, 0x2f, 0x41, 0x75, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x67, 0x72, 0x70,
+	0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_grpc_proto_proto_rawDescOnce sync.Once
-	file_grpc_proto_proto_rawDescData = file_grpc_proto_proto_rawDesc
+	file_internal_grpc_proto_proto_rawDescOnce sync.Once
+	file_internal_grpc_proto_proto_rawDescData = file_internal_grpc_proto_proto_rawDesc
 )
 
-func file_grpc_proto_proto_rawDescGZIP() []byte {
-	file_grpc_proto_proto_rawDescOnce.Do(func() {
-		file_grpc_proto_proto_rawDescData = protoimpl.X.CompressGZIP(file_grpc_proto_proto_rawDescData)
+func file_internal_grpc_proto_proto_rawDescGZIP() []byte {
+	file_internal_grpc_proto_proto_rawDescOnce.Do(func() {
+		file_internal_grpc_proto_proto_rawDescData = protoimpl.X.CompressGZIP(file_internal_grpc_proto_proto_rawDescData)
 	})
-	return file_grpc_proto_proto_rawDescData
+	return file_internal_grpc_proto_proto_rawDescData
 }
 
-var file_grpc_proto_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_grpc_proto_proto_goTypes = []any{
+var file_internal_grpc_proto_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_internal_grpc_proto_proto_goTypes = []any{
 	(*Amount)(nil),  // 0: Amount
 	(*Ack)(nil),     // 1: Ack
 	(*Empty)(nil),   // 2: Empty
 	(*Outcome)(nil), // 3: Outcome
 	(*Test)(nil),    // 4: Test
 }
-var file_grpc_proto_proto_depIdxs = []int32{
+var file_internal_grpc_proto_proto_depIdxs = []int32{
 	2, // 0: Node.TestCall:input_type -> Empty
 	0, // 1: Node.Bid:input_type -> Amount
 	2, // 2: Node.Result:input_type -> Empty
-	4, // 3: Node.TestCall:output_type -> Test
-	1, // 4: Node.Bid:output_type -> Ack
-	3, // 5: Node.Result:output_type -> Outcome
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	2, // 3: Node.Stop:input_type -> Empty
+	4, // 4: Node.TestCall:output_type -> Test
+	1, // 5: Node.Bid:output_type -> Ack
+	3, // 6: Node.Result:output_type -> Outcome
+	2, // 7: Node.Stop:output_type -> Empty
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_grpc_proto_proto_init() }
-func file_grpc_proto_proto_init() {
-	if File_grpc_proto_proto != nil {
+func init() { file_internal_grpc_proto_proto_init() }
+func file_internal_grpc_proto_proto_init() {
+	if File_internal_grpc_proto_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_grpc_proto_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_internal_grpc_proto_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*Amount); i {
 			case 0:
 				return &v.state
@@ -341,7 +345,7 @@ func file_grpc_proto_proto_init() {
 				return nil
 			}
 		}
-		file_grpc_proto_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_internal_grpc_proto_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*Ack); i {
 			case 0:
 				return &v.state
@@ -353,7 +357,7 @@ func file_grpc_proto_proto_init() {
 				return nil
 			}
 		}
-		file_grpc_proto_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_internal_grpc_proto_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*Empty); i {
 			case 0:
 				return &v.state
@@ -365,7 +369,7 @@ func file_grpc_proto_proto_init() {
 				return nil
 			}
 		}
-		file_grpc_proto_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_internal_grpc_proto_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*Outcome); i {
 			case 0:
 				return &v.state
@@ -377,7 +381,7 @@ func file_grpc_proto_proto_init() {
 				return nil
 			}
 		}
-		file_grpc_proto_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_internal_grpc_proto_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*Test); i {
 			case 0:
 				return &v.state
@@ -394,18 +398,18 @@ func file_grpc_proto_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_grpc_proto_proto_rawDesc,
+			RawDescriptor: file_internal_grpc_proto_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_grpc_proto_proto_goTypes,
-		DependencyIndexes: file_grpc_proto_proto_depIdxs,
-		MessageInfos:      file_grpc_proto_proto_msgTypes,
+		GoTypes:           file_internal_grpc_proto_proto_goTypes,
+		DependencyIndexes: file_internal_grpc_proto_proto_depIdxs,
+		MessageInfos:      file_internal_grpc_proto_proto_msgTypes,
 	}.Build()
-	File_grpc_proto_proto = out.File
-	file_grpc_proto_proto_rawDesc = nil
-	file_grpc_proto_proto_goTypes = nil
-	file_grpc_proto_proto_depIdxs = nil
+	File_internal_grpc_proto_proto = out.File
+	file_internal_grpc_proto_proto_rawDesc = nil
+	file_internal_grpc_proto_proto_goTypes = nil
+	file_internal_grpc_proto_proto_depIdxs = nil
 }

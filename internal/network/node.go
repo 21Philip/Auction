@@ -53,7 +53,7 @@ func (n *node) Start() {
 		fmt.Printf("Failed to serve: %v\n", err)
 	}
 
-	fmt.Printf("Node %d crashed!\n", n.id)
+	fmt.Printf("Node %d stopped!\n", n.id)
 }
 
 /*
@@ -86,6 +86,18 @@ func (n *node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
 	go n.crash()
 	response := fmt.Sprintf("Response from node %d", n.id)
 	return &pb.Test{Payload: response}, nil
+}
+
+func (n *node) Stop(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
+	if n.srv == nil { // this is impossible
+		return nil, fmt.Errorf("node %d was never started", n.id)
+	}
+
+	go func() {
+		n.srv.GracefulStop()
+	}()
+
+	return &pb.Empty{}, nil
 }
 
 func (n *node) crash() {

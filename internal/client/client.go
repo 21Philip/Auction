@@ -31,21 +31,20 @@ func NewClient(id int, network *nwPkg.Network) *Client {
 	}
 }
 
+// Blocks until user types 'quit' or recieves interrupt signal
 func (c *Client) StartClient() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
-		c.mu.Lock()
-
-		if c.nodeId == -1 {
-			c.mu.Unlock()
-			break
-		}
-
 		input := scanner.Text()
+		c.mu.Lock()
 
 		if input == "test" {
 			c.testCall()
+		}
+
+		if input == "quit" {
+			break
 		}
 
 		c.mu.Unlock()
@@ -55,11 +54,17 @@ func (c *Client) StartClient() {
 }
 
 func (c *Client) testCall() {
+	curNode := c.network.Nodes[c.nodeId]
+	if curNode == nil {
+		fmt.Printf("CLIENT (you): Seems all nodes are unavailable. Consider using 'quit' to exit program\n")
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	req := &pb.Empty{}
 	defer cancel()
 
-	reply, err := c.network.Nodes[c.nodeId].TestCall(ctx, req)
+	reply, err := curNode.TestCall(ctx, req)
 	if err != nil {
 		c.changeNode(c.testCall)
 		return
@@ -68,14 +73,9 @@ func (c *Client) testCall() {
 	fmt.Printf("%s\n", reply.Payload)
 }
 
+// Very simple for now. Should consider better logic at some point
 func (c *Client) changeNode(retry func()) {
 	fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection\n")
-
 	c.nodeId++
-	if c.nodeId < c.network.Size {
-		retry()
-		return
-	}
-
-	c.nodeId = -1
+	retry()
 }

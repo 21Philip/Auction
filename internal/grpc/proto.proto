@@ -5,6 +5,7 @@ service Node {
     rpc TestCall (Empty) returns (Test);
     rpc Bid (Amount) returns (Ack);
     rpc Result (Empty) returns (Outcome);
+    rpc Stop (Empty) returns (Empty);
 }
 
 message Amount {

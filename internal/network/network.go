@@ -1,11 +1,13 @@
 package network
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
 	"sync"
+	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
 	"google.golang.org/grpc"
@@ -14,7 +16,10 @@ import (
 
 var wg = sync.WaitGroup{}
 
-const BasePort = 50050
+const (
+	BasePort = 50050
+	timeout  = 200 * time.Millisecond
+)
 
 type Network struct {
 	Size  int
@@ -42,6 +47,7 @@ func NewNetwork(nodeAmount int) (*Network, error) {
 	return nw, nil
 }
 
+// Blocks until all node processes exit
 func (nw *Network) StartNetwork() {
 	for i := range nw.Nodes {
 		wg.Add(1)
@@ -49,7 +55,7 @@ func (nw *Network) StartNetwork() {
 	}
 
 	wg.Wait()
-	fmt.Printf("Network stopped!\n")
+	fmt.Printf("All nodes in network are offline!\n")
 }
 
 func startNode(nodeId string, nodeAmount string) {
@@ -69,4 +75,20 @@ func startNode(nodeId string, nodeAmount string) {
 	}
 
 	wg.Done()
+}
+
+// Exits all node processes
+func (nw *Network) StopNetwork() {
+	for id, node := range nw.Nodes {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+
+		_, err := node.Stop(ctx, &pb.Empty{})
+		if err != nil {
+			fmt.Printf("Node %d was already stopped\n", id)
+		}
+	}
+
+	wg.Wait()
+	time.Sleep(time.Second)
 }
