@@ -3,7 +3,6 @@ package network
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"net"
 	"sync"
 	"time"
@@ -45,7 +44,7 @@ func (n *node) Start() {
 	fmt.Printf("Node %d listening at %v\n", n.id, listener.Addr())
 
 	pb.RegisterNodeServer(grpcServer, n)
-	go n.simulateAuction(grpcServer)
+	//go n.simulateAuction(grpcServer)
 
 	if grpcServer.Serve(listener) != nil {
 		fmt.Printf("Failed to serve: %v\n", err)
@@ -54,6 +53,7 @@ func (n *node) Start() {
 	fmt.Printf("Node %d was killed\n", n.id)
 }
 
+/*
 func (n *node) simulateAuction(srv *grpc.Server) {
 	lastStep := time.Now()
 	time.Sleep(initialSleepDuration)
@@ -77,8 +77,9 @@ func (n *node) simulateAuction(srv *grpc.Server) {
 
 	fmt.Printf("Simulation of node %d was stopped\n", n.id)
 }
+*/
 
 func (n *node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
-	fmt.Printf("I am node %d\n", n.id)
-	return &pb.Test{Payload: "response"}, nil
+	response := fmt.Sprintf("Response from node %d", n.id)
+	return &pb.Test{Payload: response}, nil
 }

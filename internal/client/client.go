@@ -18,12 +18,12 @@ const (
 
 type Client struct {
 	mu      sync.Mutex
-	id      int           // Client id
-	nodeId  int           // Id of Current node/replica directing request to
-	network nwPkg.Network // All nodes on network
+	id      int            // Client id
+	nodeId  int            // Id of Current node/replica directing request to
+	network *nwPkg.Network // All nodes on network
 }
 
-func NewClient(id int, network nwPkg.Network) *Client {
+func NewClient(id int, network *nwPkg.Network) *Client {
 	return &Client{
 		id:      id,
 		nodeId:  0,
@@ -35,20 +35,23 @@ func (c *Client) StartClient() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
+		c.mu.Lock()
+
 		if c.nodeId == -1 {
+			c.mu.Unlock()
 			break
 		}
 
 		input := scanner.Text()
-		c.mu.Lock()
 
 		if input == "test" {
 			c.testCall()
-			continue
 		}
 
 		c.mu.Unlock()
 	}
+
+	fmt.Println("Client stopped!")
 }
 
 func (c *Client) testCall() {
@@ -62,7 +65,7 @@ func (c *Client) testCall() {
 		return
 	}
 
-	fmt.Printf(reply.Payload)
+	fmt.Printf("%s\n", reply.Payload)
 }
 
 func (c *Client) changeNode(retry func()) {
