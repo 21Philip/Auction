@@ -6,27 +6,38 @@ import (
 	"os/exec"
 	"strconv"
 	"sync"
+
+	pb "github.com/21Philip/Auction/internal/grpc"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var wg = sync.WaitGroup{}
 
-const basePort = 50050
+const BasePort = 50050
 
 type Network struct {
 	Size  int
-	Nodes map[int]string // id -> address
+	Nodes map[int]pb.NodeClient // id -> node
 }
 
 func NewNetwork(nodeAmount int) *Network {
 	nw := &Network{
 		Size:  nodeAmount,
-		Nodes: make(map[int]string),
+		Nodes: make(map[int]pb.NodeClient),
 	}
 
 	for i := range nodeAmount {
-		port := basePort + i
-		address := ":" + strconv.Itoa(port)
-		nw.Nodes[i] = address
+		port := BasePort + i
+		addr := ":" + strconv.Itoa(port)
+
+		conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			fmt.Printf("ERROR: Could not create network: %v\n", err)
+			return nil
+		}
+
+		nw.Nodes[i] = pb.NewNodeClient(conn)
 	}
 
 	return nw
@@ -39,7 +50,7 @@ func (nw *Network) StartNetwork() {
 	}
 
 	wg.Wait()
-	fmt.Printf("Server stopped!\n")
+	fmt.Printf("Network stopped!\n")
 }
 
 func startNode(nodeId string, nodeAmount string) {

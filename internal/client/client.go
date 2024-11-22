@@ -9,6 +9,7 @@ import (
 	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
+	nwPkg "github.com/21Philip/Auction/internal/network"
 )
 
 const (
@@ -16,17 +17,17 @@ const (
 )
 
 type Client struct {
-	mu         sync.Mutex
-	id         int             // Client id
-	curNode    int             // Index of node currently directing API requests to
-	knownNodes []pb.NodeClient // All known nodes
+	mu      sync.Mutex
+	id      int           // Client id
+	nodeId  int           // Id of Current node/replica directing request to
+	network nwPkg.Network // All nodes on network
 }
 
-func NewClient(id int, nodes []pb.NodeClient) *Client {
+func NewClient(id int, network nwPkg.Network) *Client {
 	return &Client{
-		id:         id,
-		curNode:    0,
-		knownNodes: nodes,
+		id:      id,
+		nodeId:  0,
+		network: network,
 	}
 }
 
@@ -34,7 +35,7 @@ func (c *Client) StartClient() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
-		if c.curNode == -1 {
+		if c.nodeId == -1 {
 			break
 		}
 
@@ -55,7 +56,7 @@ func (c *Client) testCall() {
 	req := &pb.Empty{}
 	defer cancel()
 
-	reply, err := c.knownNodes[c.curNode].TestCall(ctx, req)
+	reply, err := c.network.Nodes[c.nodeId].TestCall(ctx, req)
 	if err != nil {
 		c.changeNode(c.testCall)
 		return
@@ -67,11 +68,11 @@ func (c *Client) testCall() {
 func (c *Client) changeNode(retry func()) {
 	fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection")
 
-	c.curNode++
-	if c.curNode < len(c.knownNodes) {
+	c.nodeId++
+	if c.nodeId < c.network.Size {
 		retry()
 		return
 	}
 
-	c.curNode = -1
+	c.nodeId = -1
 }
