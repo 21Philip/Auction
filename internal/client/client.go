@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	pb "github.com/21Philip/Auction/grpc"
+	pb "github.com/21Philip/Auction/internal/grpc"
 )
 
 const (

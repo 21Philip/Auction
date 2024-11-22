@@ -21,7 +21,7 @@ func StartServer(nodeAmount int) {
 }
 
 func startNode(nodeId string, nodeAmount string) {
-	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/server/create-node", nodeId, nodeAmount)
+	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/internal/server/create-node", nodeId, nodeAmount)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

@@ -5,8 +5,8 @@ import (
 	"os"
 	"strconv"
 
-	pb "github.com/21Philip/Auction/grpc"
-	serverPkg "github.com/21Philip/Auction/server"
+	pb "github.com/21Philip/Auction/internal/grpc"
+	serverPkg "github.com/21Philip/Auction/internal/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
