@@ -1,4 +1,4 @@
-package main
+package node
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	pb "github.com/21Philip/Auction/grpc"
+	clockPkg "github.com/21Philip/Auction/server/clock"
 	"google.golang.org/grpc"
 )
 
@@ -24,19 +25,19 @@ type Node struct {
 	id    int
 	addr  string
 	peers map[int]pb.NodeClient // id -> node
-	clock *VectorClock
+	clock *clockPkg.VectorClock
 }
 
-func NewNode(id int, addr string) *Node {
+func NewNode(id int, addr string, peers map[int]pb.NodeClient) *Node {
 	return &Node{
 		id:    id,
 		addr:  addr,
-		peers: make(map[int]pb.NodeClient),
-		clock: NewVectorClock(),
+		peers: peers,
+		clock: clockPkg.NewVectorClock(),
 	}
 }
 
-func (n *Node) start() {
+func (n *Node) Start() {
 	grpcServer := grpc.NewServer()
 	listener, err := net.Listen("tcp", n.addr)
 	if err != nil {

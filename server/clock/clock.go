@@ -1,4 +1,4 @@
-package main
+package clock
 
 type CompareResult int
 
@@ -19,15 +19,15 @@ func NewVectorClock() *VectorClock {
 	}
 }
 
-func (vc *VectorClock) incrementTimestamp(idx int) {
+func (vc *VectorClock) IncrementTimestamp(idx int) {
 	vc.vector[idx]++
 }
 
-func (vc *VectorClock) getTimestamp(idx int) int {
+func (vc *VectorClock) GetTimestamp(idx int) int {
 	return vc.vector[idx]
 }
 
-func (vc *VectorClock) merge(other VectorClock) {
+func (vc *VectorClock) Merge(other VectorClock) {
 	for idx, timestamp := range other.vector {
 		vc.vector[idx] = max(vc.vector[idx], timestamp)
 	}
@@ -37,13 +37,13 @@ func (vc *VectorClock) merge(other VectorClock) {
 // happened before, after, or concurrently with another event
 // having vector clock "other".
 // TODO: What if length not same?
-func (vc *VectorClock) compareTo(other VectorClock) CompareResult {
+func (vc *VectorClock) CompareTo(other VectorClock) CompareResult {
 	areEqual := true
 	otherIsAhead := true
 	otherIsBehind := true
 
 	for idx, timestamp := range vc.vector {
-		otherTimestamp := other.getTimestamp(idx)
+		otherTimestamp := other.GetTimestamp(idx)
 		if timestamp != otherTimestamp {
 			areEqual = false
 		}
