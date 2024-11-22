@@ -5,7 +5,8 @@ import (
 	"os"
 	"strconv"
 
-	pb "github.com/21Philip/Auction/grpc"
+	pb "github.com/21Philip/Auction/internal/grpc"
+	serverPkg "github.com/21Philip/Auction/internal/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -32,19 +33,20 @@ func main() {
 	port := basePort + nodeId
 	addr := ":" + strconv.Itoa(port)
 
-	node := NewNode(nodeId, addr)
+	peers := make(map[int]pb.NodeClient)
 
 	for i := range peerAmount {
 		peerAddr := ":" + strconv.Itoa(basePort+i)
 
 		conn, err := grpc.NewClient(peerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			fmt.Printf("ERROR: Node %d could not connect to %s: %v\n", node.id, addr, err)
+			fmt.Printf("ERROR: Node %d could not connect to %s: %v\n", nodeId, addr, err)
 			continue
 		}
 
-		node.peers[i] = pb.NewNodeClient(conn)
+		peers[i] = pb.NewNodeClient(conn)
 	}
 
-	node.start()
+	node := serverPkg.NewNode(nodeId, addr, peers)
+	node.Start()
 }

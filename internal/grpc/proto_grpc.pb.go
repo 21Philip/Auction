@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
-	TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Test, error)
 	Bid(ctx context.Context, in *Amount, opts ...grpc.CallOption) (*Ack, error)
 	Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Outcome, error)
 }
@@ -41,9 +41,9 @@ func NewNodeClient(cc grpc.ClientConnInterface) NodeClient {
 	return &nodeClient{cc}
 }
 
-func (c *nodeClient) TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+func (c *nodeClient) TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Test, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Empty)
+	out := new(Test)
 	err := c.cc.Invoke(ctx, Node_TestCall_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (c *nodeClient) Result(ctx context.Context, in *Empty, opts ...grpc.CallOpt
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility.
 type NodeServer interface {
-	TestCall(context.Context, *Empty) (*Empty, error)
+	TestCall(context.Context, *Empty) (*Test, error)
 	Bid(context.Context, *Amount) (*Ack, error)
 	Result(context.Context, *Empty) (*Outcome, error)
 	mustEmbedUnimplementedNodeServer()
@@ -88,7 +88,7 @@ type NodeServer interface {
 // pointer dereference when methods are called.
 type UnimplementedNodeServer struct{}
 
-func (UnimplementedNodeServer) TestCall(context.Context, *Empty) (*Empty, error) {
+func (UnimplementedNodeServer) TestCall(context.Context, *Empty) (*Test, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestCall not implemented")
 }
 func (UnimplementedNodeServer) Bid(context.Context, *Amount) (*Ack, error) {
