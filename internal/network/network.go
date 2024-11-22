@@ -10,10 +10,32 @@ import (
 
 var wg = sync.WaitGroup{}
 
-func BuildNetwork(nodeAmount int) {
+const basePort = 50050
+
+type Network struct {
+	Size  int
+	Nodes map[int]string // id -> address
+}
+
+func NewNetwork(nodeAmount int) *Network {
+	nw := &Network{
+		Size:  nodeAmount,
+		Nodes: make(map[int]string),
+	}
+
 	for i := range nodeAmount {
+		port := basePort + i
+		address := ":" + strconv.Itoa(port)
+		nw.Nodes[i] = address
+	}
+
+	return nw
+}
+
+func (nw *Network) StartNetwork() {
+	for i := range nw.Nodes {
 		wg.Add(1)
-		go startNode(strconv.Itoa(i), strconv.Itoa(nodeAmount))
+		go startNode(strconv.Itoa(i), strconv.Itoa(nw.Size))
 	}
 
 	wg.Wait()
