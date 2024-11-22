@@ -1,8 +1,16 @@
 package main
 
-import nwPkg "github.com/21Philip/Auction/internal/network"
+import (
+	"fmt"
+
+	nwPkg "github.com/21Philip/Auction/internal/network"
+)
 
 func main() {
-	nw := nwPkg.NewNetwork(5)
+	nw, err := nwPkg.NewNetwork(5)
+	if err != nil {
+		fmt.Printf("ERROR: Could not create network")
+		return
+	}
 	nw.StartNetwork()
 }

@@ -21,7 +21,7 @@ type Network struct {
 	Nodes map[int]pb.NodeClient // id -> node
 }
 
-func NewNetwork(nodeAmount int) *Network {
+func NewNetwork(nodeAmount int) (*Network, error) {
 	nw := &Network{
 		Size:  nodeAmount,
 		Nodes: make(map[int]pb.NodeClient),
@@ -33,14 +33,13 @@ func NewNetwork(nodeAmount int) *Network {
 
 		conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
-			fmt.Printf("ERROR: Could not create network: %v\n", err)
-			return nil
+			return nil, fmt.Errorf("failed to create client at iteration %d", i)
 		}
 
 		nw.Nodes[i] = pb.NewNodeClient(conn)
 	}
 
-	return nw
+	return nw, nil
 }
 
 func (nw *Network) StartNetwork() {
