@@ -30,7 +30,7 @@ func NewClient(id int, nodes []pb.NodeClient) *Client {
 	}
 }
 
-func (c *Client) Start() {
+func (c *Client) StartClient() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {

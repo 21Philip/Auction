@@ -1,7 +1,7 @@
 package main
 
-import serverPkg "github.com/21Philip/Auction/internal/server"
+import serverPkg "github.com/21Philip/Auction/internal/network"
 
 func main() {
-	serverPkg.StartServer(5)
+	serverPkg.BuildNetwork(5)
 }

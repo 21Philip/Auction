@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
-	serverPkg "github.com/21Philip/Auction/internal/server"
+	network "github.com/21Philip/Auction/internal/network"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -47,6 +47,6 @@ func main() {
 		peers[i] = pb.NewNodeClient(conn)
 	}
 
-	node := serverPkg.NewNode(nodeId, addr, peers)
+	node := network.NewNode(nodeId, addr, peers)
 	node.Start()
 }
