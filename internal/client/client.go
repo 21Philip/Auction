@@ -69,7 +69,7 @@ func (c *Client) testCall() {
 }
 
 func (c *Client) changeNode(retry func()) {
-	fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection")
+	fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection\n")
 
 	c.nodeId++
 	if c.nodeId < c.network.Size {

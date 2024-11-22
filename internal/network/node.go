@@ -24,6 +24,7 @@ type node struct {
 	addr  string
 	peers map[int]pb.NodeClient // id -> node
 	clock *vectorClock
+	srv   *grpc.Server
 }
 
 func NewNode(id int, addr string, peers map[int]pb.NodeClient) *node {
@@ -32,6 +33,7 @@ func NewNode(id int, addr string, peers map[int]pb.NodeClient) *node {
 		addr:  addr,
 		peers: peers,
 		clock: newVectorClock(),
+		srv:   nil,
 	}
 }
 
@@ -44,13 +46,14 @@ func (n *node) Start() {
 	fmt.Printf("Node %d listening at %v\n", n.id, listener.Addr())
 
 	pb.RegisterNodeServer(grpcServer, n)
+	n.srv = grpcServer
 	//go n.simulateAuction(grpcServer)
 
 	if grpcServer.Serve(listener) != nil {
 		fmt.Printf("Failed to serve: %v\n", err)
 	}
 
-	fmt.Printf("Node %d was killed\n", n.id)
+	fmt.Printf("Node %d crashed!\n", n.id)
 }
 
 /*
@@ -80,6 +83,11 @@ func (n *node) simulateAuction(srv *grpc.Server) {
 */
 
 func (n *node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
+	go n.crash()
 	response := fmt.Sprintf("Response from node %d", n.id)
 	return &pb.Test{Payload: response}, nil
+}
+
+func (n *node) crash() {
+	n.srv.GracefulStop()
 }
