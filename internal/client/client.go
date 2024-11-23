@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
@@ -20,7 +19,6 @@ const (
 )
 
 type Client struct {
-	mu      sync.Mutex
 	id      int            // Client id
 	nodeId  int            // Id of Current node/replica directing request to
 	network *nwPkg.Network // All nodes on network
@@ -40,7 +38,6 @@ func (c *Client) StartClient() {
 
 	for scanner.Scan() {
 		input := strings.Split(scanner.Text(), " ")
-		c.mu.Lock()
 
 		if input[0] == "bid" {
 			c.bid(input)
@@ -57,8 +54,6 @@ func (c *Client) StartClient() {
 		if input[0] == "test" {
 			c.testCall()
 		}
-
-		c.mu.Unlock()
 	}
 
 	fmt.Println("Client stopped!")
@@ -88,13 +83,13 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 
 func (c *Client) bid(input []string) {
 	if len(input) != 2 {
-		fmt.Printf("CLIENT (you): Incorrect arguments to place bid. Correct use 'bid <amount>'")
+		fmt.Printf("CLIENT (you): Incorrect arguments to place bid. Correct use 'bid <amount>'\n")
 		return
 	}
 
 	bidAmount, err := strconv.Atoi(input[1])
 	if err != nil {
-		fmt.Printf("CLIENT (you): Cannot convert %s to int. Correct use 'bid <amount>'", input[1])
+		fmt.Printf("CLIENT (you): Cannot convert '%s' to int. Correct use 'bid <amount>'\n", input[1])
 		return
 	}
 
@@ -108,7 +103,7 @@ func (c *Client) bid(input []string) {
 		return
 	}
 
-	fmt.Printf("%v\n", reply.Success)
+	fmt.Printf("Response: %v\n", reply.Success)
 }
 
 func (c *Client) result() {
@@ -117,7 +112,8 @@ func (c *Client) result() {
 	if err != nil {
 		return
 	}
-	fmt.Printf("Current winner: Client %d, bid %d\n", reply.Winner, reply.BidAmount)
+
+	fmt.Printf("Response: Client %d, bid %d\n", reply.Winner, reply.BidAmount)
 }
 
 func (c *Client) testCall() {

@@ -21,5 +21,5 @@ func main() {
 	}
 
 	node := nwPkg.NewNode(id, addr, nw.Nodes)
-	node.Start()
+	node.StartNode()
 }

@@ -5,16 +5,9 @@ import (
 	"fmt"
 	"net"
 	"sync"
-	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
 	"google.golang.org/grpc"
-)
-
-const (
-	initialSleepDuration = 2 * time.Second // Allow other nodes to start at beginning of simulation
-	stepTime             = 1 * time.Second // The time between each step/frame of simulation
-	crashChance          = 10              // The chance of a node to crash at any step. Its calculated as 1/crashChance
 )
 
 type node struct {
@@ -24,7 +17,7 @@ type node struct {
 	addr  string
 	peers map[int]pb.NodeClient // id -> node
 	clock *vectorClock
-	srv   *grpc.Server
+	srv   *grpc.Server // temporary
 }
 
 func NewNode(id int, addr string, peers map[int]pb.NodeClient) *node {
@@ -37,7 +30,7 @@ func NewNode(id int, addr string, peers map[int]pb.NodeClient) *node {
 	}
 }
 
-func (n *node) Start() {
+func (n *node) StartNode() {
 	grpcServer := grpc.NewServer()
 	listener, err := net.Listen("tcp", n.addr)
 	if err != nil {
@@ -47,7 +40,6 @@ func (n *node) Start() {
 
 	pb.RegisterNodeServer(grpcServer, n)
 	n.srv = grpcServer
-	//go n.simulateAuction(grpcServer)
 
 	if grpcServer.Serve(listener) != nil {
 		fmt.Printf("Failed to serve: %v\n", err)
@@ -56,36 +48,22 @@ func (n *node) Start() {
 	fmt.Printf("Node %d stopped!\n", n.id)
 }
 
-/*
-func (n *node) simulateAuction(srv *grpc.Server) {
-	lastStep := time.Now()
-	time.Sleep(initialSleepDuration)
+func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
 
-	for {
-		if time.Since(lastStep) < stepTime {
-			continue
-		}
-		lastStep = time.Now()
+	fmt.Printf("I am node %d and have recived your bid (bidder %d, amount %d)\n", n.id, in.Bidder, in.Amount)
 
-		n.mu.Lock()
-
-		fmt.Printf("Hello from node %d\n", n.id)
-		if rand.Intn(10) == 0 {
-			srv.Stop()
-			break
-		}
-
-		n.mu.Unlock()
-	}
-
-	fmt.Printf("Simulation of node %d was stopped\n", n.id)
+	return &pb.Ack{Success: true}, nil
 }
-*/
 
-func (n *node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
-	go n.crash()
-	response := fmt.Sprintf("Response from node %d", n.id)
-	return &pb.Test{Payload: response}, nil
+func (n *node) Result(ctx context.Context, in *pb.Empty) (*pb.Outcome, error) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+
+	fmt.Printf("I am node %d and have recived your request for result\n", n.id)
+
+	return &pb.Outcome{Winner: 0, BidAmount: 0}, nil
 }
 
 func (n *node) Stop(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
@@ -98,6 +76,12 @@ func (n *node) Stop(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
 	}()
 
 	return &pb.Empty{}, nil
+}
+
+func (n *node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
+	go n.crash()
+	response := fmt.Sprintf("Response from node %d", n.id)
+	return &pb.Test{Payload: response}, nil
 }
 
 func (n *node) crash() {
