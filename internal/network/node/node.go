@@ -59,7 +59,7 @@ func (n *node) getMajorityApproval(bid *pb.Amount) bool {
 	calls := sync.WaitGroup{}
 
 	for peerId, peer := range n.network.Nodes {
-		if peerId == n.id { // TODO: Consider looping over self aswell
+		if peerId == n.id { // TODO: Consider looping over self aswell. locks acting wierd
 			continue
 		}
 		calls.Add(1)
@@ -99,6 +99,8 @@ func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 
 	// check if majority approve incoming bid
 	if !n.getMajorityApproval(in) {
+		// TODO: Timeout client so that it switches
+		// to another node. Could be splitbrain.
 		return &pb.Ack{Success: false}, nil
 	}
 

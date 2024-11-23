@@ -62,7 +62,7 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 	var reply Out
 
 	curNode := c.network.Nodes[c.nodeId]
-	if curNode == nil {
+	if curNode == nil { // TODO: Consider cycling nodes
 		fmt.Printf("Client (you): Seems all nodes are unavailable. Consider using 'quit' to exit program\n")
 		return reply, fmt.Errorf("no more nodes")
 	}
