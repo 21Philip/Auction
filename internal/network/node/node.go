@@ -16,7 +16,7 @@ type node struct {
 	mu         sync.Mutex
 	id         int
 	addr       string
-	peers      *nwPkg.Network
+	network    *nwPkg.Network
 	highestBid *pb.Amount
 	srv        *grpc.Server // temporary TODO: Remove
 }
@@ -25,7 +25,7 @@ func newNode(id int, addr string, network *nwPkg.Network) *node {
 	return &node{
 		id:         id,
 		addr:       addr,
-		peers:      network,
+		network:    network,
 		highestBid: &pb.Amount{Bidder: -1, Amount: 0},
 		srv:        nil,
 	}
@@ -49,7 +49,40 @@ func (n *node) startNode() {
 	fmt.Printf("Node %d stopped!\n", n.id)
 }
 
-//func (n *node)
+func (n *node) getMajorityApproval(bid *pb.Amount) bool {
+	majority := n.network.Size / 2 // Already has approvement from self
+	approvals := 0
+
+	ctx, cancel := context.WithTimeout(context.Background(), nwPkg.Timeout)
+	defer cancel()
+
+	for peerId, peer := range n.network.Nodes {
+		go func() {
+			if peerId != n.id { // TODO: Consider looping over self aswell
+				return
+			}
+
+			reply, err := peer.VerifyBid(ctx, bid)
+			if err == nil && reply.Success {
+				approvals++
+			}
+		}()
+	}
+
+	return approvals >= majority
+}
+
+func (n *node) VerifyBid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+
+	if n.highestBid.Amount > in.Amount {
+		return &pb.Ack{Success: false}, nil
+	}
+
+	n.highestBid = in
+	return &pb.Ack{Success: true}, nil
+}
 
 func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	n.mu.Lock()
@@ -62,10 +95,12 @@ func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	}
 
 	// check if majority approve incoming bid
-	//n.verify(in)
+	if !n.getMajorityApproval(in) {
+		return &pb.Ack{Success: false}, nil
+	}
 
 	// If so, change local leadingBid
-
+	n.highestBid = in
 	return &pb.Ack{Success: true}, nil
 }
 

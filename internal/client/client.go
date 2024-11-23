@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
 	nwPkg "github.com/21Philip/Auction/internal/network"
@@ -15,7 +14,7 @@ import (
 )
 
 const (
-	timeout = 200 * time.Millisecond // timeout for all calls to server
+	timeout = 10 * nwPkg.Timeout // timeout for all calls to server
 )
 
 type Client struct {
@@ -64,7 +63,7 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 
 	curNode := c.network.Nodes[c.nodeId]
 	if curNode == nil {
-		fmt.Printf("CLIENT (you): Seems all nodes are unavailable. Consider using 'quit' to exit program\n")
+		fmt.Printf("Client (you): Seems all nodes are unavailable. Consider using 'quit' to exit program\n")
 		return reply, fmt.Errorf("no more nodes")
 	}
 
@@ -73,7 +72,7 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 
 	reply, err := call(curNode, ctx, req)
 	if err != nil {
-		fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection\n")
+		fmt.Printf("Client (you): Request to current node timed out. Establishing new connection\n")
 		c.nodeId++
 		return makeCall(c, call, req)
 	}
@@ -83,13 +82,13 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 
 func (c *Client) bid(input []string) {
 	if len(input) != 2 {
-		fmt.Printf("CLIENT (you): Incorrect arguments to place bid. Correct use 'bid <amount>'\n")
+		fmt.Printf("Client (you): Incorrect arguments to place bid. Correct use 'bid <amount>'\n")
 		return
 	}
 
 	bidAmount, err := strconv.Atoi(input[1])
 	if err != nil {
-		fmt.Printf("CLIENT (you): Cannot convert '%s' to int. Correct use 'bid <amount>'\n", input[1])
+		fmt.Printf("Client (you): Cannot convert '%s' to int. Correct use 'bid <amount>'\n", input[1])
 		return
 	}
 
@@ -100,10 +99,17 @@ func (c *Client) bid(input []string) {
 
 	reply, err := makeCall(c, pb.NodeClient.Bid, req)
 	if err != nil {
+		fmt.Printf("Client (you): Something went wrong. Bid not placed.\n")
 		return
 	}
 
-	fmt.Printf("Response: %v\n", reply.Success)
+	if reply.Success {
+		fmt.Printf("Client (you): Success! Your bid of %d$ has been placed.\n", bidAmount)
+		return
+	}
+
+	fmt.Println("Client (you): Bid too low")
+	c.result()
 }
 
 func (c *Client) result() {
