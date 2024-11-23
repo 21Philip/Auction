@@ -1,0 +1,29 @@
+const (
+	initialSleepDuration = 2 * time.Second // Allow other nodes to start at beginning of simulation
+	stepTime             = 1 * time.Second // The time between each step/frame of simulation
+	crashChance          = 10              // The chance of a node to crash at any step. Its calculated as 1/crashChance
+)
+
+func (n *node) simulateAuction(srv *grpc.Server) {
+	lastStep := time.Now()
+	time.Sleep(initialSleepDuration)
+
+	for {
+		if time.Since(lastStep) < stepTime {
+			continue
+		}
+		lastStep = time.Now()
+
+		n.mu.Lock()
+
+		fmt.Printf("Hello from node %d\n", n.id)
+		if rand.Intn(10) == 0 {
+			srv.Stop()
+			break
+		}
+
+		n.mu.Unlock()
+	}
+
+	fmt.Printf("Simulation of node %d was stopped\n", n.id)
+}

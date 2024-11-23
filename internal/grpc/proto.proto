@@ -2,14 +2,15 @@ syntax = "proto3";
 option go_package = "github.com/21Philip/Auction/grpc";
 
 service Node {
-    rpc TestCall (Empty) returns (Test);
     rpc Bid (Amount) returns (Ack);
     rpc Result (Empty) returns (Outcome);
+    rpc Stop (Empty) returns (Empty);
+    rpc TestCall (Empty) returns (Test);
 }
 
 message Amount {
     int32 bidder = 1;
-    int32 value = 2;
+    int32 amount = 2;
 }
 
 message Ack {

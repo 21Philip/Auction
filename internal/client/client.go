@@ -5,10 +5,13 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"sync"
+	"strconv"
+	"strings"
 	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
+	nwPkg "github.com/21Philip/Auction/internal/network"
+	"google.golang.org/grpc"
 )
 
 const (
@@ -16,62 +19,108 @@ const (
 )
 
 type Client struct {
-	mu         sync.Mutex
-	id         int             // Client id
-	curNode    int             // Index of node currently directing API requests to
-	knownNodes []pb.NodeClient // All known nodes
+	id      int            // Client id
+	nodeId  int            // Id of Current node/replica directing request to
+	network *nwPkg.Network // All nodes on network
 }
 
-func NewClient(id int, nodes []pb.NodeClient) *Client {
+func NewClient(id int, network *nwPkg.Network) *Client {
 	return &Client{
-		id:         id,
-		curNode:    0,
-		knownNodes: nodes,
+		id:      id,
+		nodeId:  0,
+		network: network,
 	}
 }
 
-func (c *Client) Start() {
+// Blocks until user types 'quit' or recieves interrupt signal
+func (c *Client) StartClient() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
-		if c.curNode == -1 {
+		input := strings.Split(scanner.Text(), " ")
+
+		if input[0] == "bid" {
+			c.bid(input)
+		}
+
+		if input[0] == "result" {
+			c.result()
+		}
+
+		if input[0] == "quit" {
 			break
 		}
 
-		input := scanner.Text()
-		c.mu.Lock()
-
-		if input == "test" {
+		if input[0] == "test" {
 			c.testCall()
-			continue
 		}
-
-		c.mu.Unlock()
 	}
+
+	fmt.Println("Client stopped!")
+}
+
+func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Context, In, ...grpc.CallOption) (Out, error), req In) (Out, error) {
+	var reply Out
+
+	curNode := c.network.Nodes[c.nodeId]
+	if curNode == nil {
+		fmt.Printf("CLIENT (you): Seems all nodes are unavailable. Consider using 'quit' to exit program\n")
+		return reply, fmt.Errorf("no more nodes")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	reply, err := call(curNode, ctx, req)
+	if err != nil {
+		fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection\n")
+		c.nodeId++
+		return makeCall(c, call, req)
+	}
+
+	return reply, nil
+}
+
+func (c *Client) bid(input []string) {
+	if len(input) != 2 {
+		fmt.Printf("CLIENT (you): Incorrect arguments to place bid. Correct use 'bid <amount>'\n")
+		return
+	}
+
+	bidAmount, err := strconv.Atoi(input[1])
+	if err != nil {
+		fmt.Printf("CLIENT (you): Cannot convert '%s' to int. Correct use 'bid <amount>'\n", input[1])
+		return
+	}
+
+	req := &pb.Amount{
+		Bidder: int32(c.id),
+		Amount: int32(bidAmount),
+	}
+
+	reply, err := makeCall(c, pb.NodeClient.Bid, req)
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("Response: %v\n", reply.Success)
+}
+
+func (c *Client) result() {
+	req := &pb.Empty{}
+	reply, err := makeCall(c, pb.NodeClient.Result, req)
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("Response: Client %d, bid %d\n", reply.Winner, reply.BidAmount)
 }
 
 func (c *Client) testCall() {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	req := &pb.Empty{}
-	defer cancel()
-
-	reply, err := c.knownNodes[c.curNode].TestCall(ctx, req)
+	reply, err := makeCall(c, pb.NodeClient.TestCall, req)
 	if err != nil {
-		c.changeNode(c.testCall)
 		return
 	}
-
-	fmt.Printf(reply.Payload)
-}
-
-func (c *Client) changeNode(retry func()) {
-	fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection")
-
-	c.curNode++
-	if c.curNode < len(c.knownNodes) {
-		retry()
-		return
-	}
-
-	c.curNode = -1
+	fmt.Printf("%s\n", reply.Payload)
 }

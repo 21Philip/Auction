@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.12.4
-// source: grpc/proto.proto
+// source: internal/grpc/proto.proto
 
 package grpc
 
@@ -19,18 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Node_TestCall_FullMethodName = "/Node/TestCall"
 	Node_Bid_FullMethodName      = "/Node/Bid"
 	Node_Result_FullMethodName   = "/Node/Result"
+	Node_Stop_FullMethodName     = "/Node/Stop"
+	Node_TestCall_FullMethodName = "/Node/TestCall"
 )
 
 // NodeClient is the client API for Node service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
-	TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Test, error)
 	Bid(ctx context.Context, in *Amount, opts ...grpc.CallOption) (*Ack, error)
 	Result(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Outcome, error)
+	Stop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Test, error)
 }
 
 type nodeClient struct {
@@ -39,16 +41,6 @@ type nodeClient struct {
 
 func NewNodeClient(cc grpc.ClientConnInterface) NodeClient {
 	return &nodeClient{cc}
-}
-
-func (c *nodeClient) TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Test, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Test)
-	err := c.cc.Invoke(ctx, Node_TestCall_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *nodeClient) Bid(ctx context.Context, in *Amount, opts ...grpc.CallOption) (*Ack, error) {
@@ -71,13 +63,34 @@ func (c *nodeClient) Result(ctx context.Context, in *Empty, opts ...grpc.CallOpt
 	return out, nil
 }
 
+func (c *nodeClient) Stop(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Node_Stop_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeClient) TestCall(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Test, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Test)
+	err := c.cc.Invoke(ctx, Node_TestCall_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServer is the server API for Node service.
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility.
 type NodeServer interface {
-	TestCall(context.Context, *Empty) (*Test, error)
 	Bid(context.Context, *Amount) (*Ack, error)
 	Result(context.Context, *Empty) (*Outcome, error)
+	Stop(context.Context, *Empty) (*Empty, error)
+	TestCall(context.Context, *Empty) (*Test, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -88,14 +101,17 @@ type NodeServer interface {
 // pointer dereference when methods are called.
 type UnimplementedNodeServer struct{}
 
-func (UnimplementedNodeServer) TestCall(context.Context, *Empty) (*Test, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TestCall not implemented")
-}
 func (UnimplementedNodeServer) Bid(context.Context, *Amount) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Bid not implemented")
 }
 func (UnimplementedNodeServer) Result(context.Context, *Empty) (*Outcome, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Result not implemented")
+}
+func (UnimplementedNodeServer) Stop(context.Context, *Empty) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
+}
+func (UnimplementedNodeServer) TestCall(context.Context, *Empty) (*Test, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TestCall not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
 func (UnimplementedNodeServer) testEmbeddedByValue()              {}
@@ -116,24 +132,6 @@ func RegisterNodeServer(s grpc.ServiceRegistrar, srv NodeServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&Node_ServiceDesc, srv)
-}
-
-func _Node_TestCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodeServer).TestCall(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Node_TestCall_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).TestCall(ctx, req.(*Empty))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Node_Bid_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -172,6 +170,42 @@ func _Node_Result_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Node_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_Stop_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).Stop(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Node_TestCall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServer).TestCall(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Node_TestCall_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServer).TestCall(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Node_ServiceDesc is the grpc.ServiceDesc for Node service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -180,10 +214,6 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*NodeServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "TestCall",
-			Handler:    _Node_TestCall_Handler,
-		},
-		{
 			MethodName: "Bid",
 			Handler:    _Node_Bid_Handler,
 		},
@@ -191,7 +221,15 @@ var Node_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Result",
 			Handler:    _Node_Result_Handler,
 		},
+		{
+			MethodName: "Stop",
+			Handler:    _Node_Stop_Handler,
+		},
+		{
+			MethodName: "TestCall",
+			Handler:    _Node_TestCall_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "grpc/proto.proto",
+	Metadata: "internal/grpc/proto.proto",
 }
