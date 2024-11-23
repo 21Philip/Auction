@@ -113,7 +113,7 @@ func (c *Client) result() {
 		return
 	}
 
-	fmt.Printf("Response: Client %d, bid %d\n", reply.Winner, reply.BidAmount)
+	fmt.Printf("Response: Client %d, bid %d\n", reply.HighestBid.Bidder, reply.HighestBid.Amount)
 }
 
 func (c *Client) testCall() {

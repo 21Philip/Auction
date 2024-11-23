@@ -1,4 +1,4 @@
-package network
+package main
 
 import (
 	"context"
@@ -7,30 +7,31 @@ import (
 	"sync"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
+	nwPkg "github.com/21Philip/Auction/internal/network"
 	"google.golang.org/grpc"
 )
 
 type node struct {
 	pb.NodeServer
-	mu    sync.Mutex
-	id    int
-	addr  string
-	peers map[int]pb.NodeClient // id -> node
-	clock *vectorClock
-	srv   *grpc.Server // temporary
+	mu         sync.Mutex
+	id         int
+	addr       string
+	peers      *nwPkg.Network
+	highestBid *pb.Amount
+	srv        *grpc.Server // temporary TODO: Remove
 }
 
-func NewNode(id int, addr string, peers map[int]pb.NodeClient) *node {
+func newNode(id int, addr string, network *nwPkg.Network) *node {
 	return &node{
-		id:    id,
-		addr:  addr,
-		peers: peers,
-		clock: newVectorClock(),
-		srv:   nil,
+		id:         id,
+		addr:       addr,
+		peers:      network,
+		highestBid: &pb.Amount{Bidder: -1, Amount: 0},
+		srv:        nil,
 	}
 }
 
-func (n *node) StartNode() {
+func (n *node) startNode() {
 	grpcServer := grpc.NewServer()
 	listener, err := net.Listen("tcp", n.addr)
 	if err != nil {
@@ -48,11 +49,22 @@ func (n *node) StartNode() {
 	fmt.Printf("Node %d stopped!\n", n.id)
 }
 
+//func (n *node)
+
 func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	fmt.Printf("I am node %d and have recived your bid (bidder %d, amount %d)\n", n.id, in.Bidder, in.Amount)
+	fmt.Printf("Node %d: Recived bid (bidder %d, amount %d)\n", n.id, in.Bidder, in.Amount)
+
+	if n.highestBid.Amount > in.Amount {
+		return &pb.Ack{Success: false}, nil
+	}
+
+	// check if majority approve incoming bid
+	//n.verify(in)
+
+	// If so, change local leadingBid
 
 	return &pb.Ack{Success: true}, nil
 }
@@ -61,9 +73,9 @@ func (n *node) Result(ctx context.Context, in *pb.Empty) (*pb.Outcome, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	fmt.Printf("I am node %d and have recived your request for result\n", n.id)
+	fmt.Printf("Node %d: Recived request for result\n", n.id)
 
-	return &pb.Outcome{Winner: 0, BidAmount: 0}, nil
+	return &pb.Outcome{HighestBid: n.highestBid}, nil
 }
 
 func (n *node) Stop(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {

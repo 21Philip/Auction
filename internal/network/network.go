@@ -59,7 +59,7 @@ func (nw *Network) StartNetwork() {
 }
 
 func startNode(nodeId string, nodeAmount string) {
-	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/internal/network/create-node", nodeId, nodeAmount)
+	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/internal/network/node", nodeId, nodeAmount)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
