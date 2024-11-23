@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	timeout = 10 * nwPkg.Timeout // timeout for all calls to server
+	timeout = 2 * nwPkg.Timeout // timeout for all calls to server
 )
 
 type Client struct {
@@ -72,7 +72,7 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 
 	reply, err := call(curNode, ctx, req)
 	if err != nil {
-		fmt.Printf("Client (you): Request to current node timed out. Establishing new connection\n")
+		fmt.Printf("Client (you): Request to node %d timed out. Establishing new connection\n", c.nodeId)
 		c.nodeId++
 		return makeCall(c, call, req)
 	}
@@ -119,7 +119,7 @@ func (c *Client) result() {
 		return
 	}
 
-	fmt.Printf("Response: Client %d, bid %d\n", reply.HighestBid.Bidder, reply.HighestBid.Amount)
+	fmt.Printf("Client (you): Highest bidder: %d, bid %d\n", reply.HighestBid.Bidder, reply.HighestBid.Amount)
 }
 
 func (c *Client) testCall() {

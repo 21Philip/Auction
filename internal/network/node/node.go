@@ -51,25 +51,30 @@ func (n *node) startNode() {
 
 func (n *node) getMajorityApproval(bid *pb.Amount) bool {
 	majority := n.network.Size / 2 // Already has approvement from self
-	approvals := 0
+	approvals := make(chan bool, n.network.Size)
 
 	ctx, cancel := context.WithTimeout(context.Background(), nwPkg.Timeout)
 	defer cancel()
 
-	for peerId, peer := range n.network.Nodes {
-		go func() {
-			if peerId != n.id { // TODO: Consider looping over self aswell
-				return
-			}
+	calls := sync.WaitGroup{}
 
+	for peerId, peer := range n.network.Nodes {
+		if peerId == n.id { // TODO: Consider looping over self aswell
+			continue
+		}
+		calls.Add(1)
+
+		go func() {
 			reply, err := peer.VerifyBid(ctx, bid)
 			if err == nil && reply.Success {
-				approvals++
+				approvals <- true
 			}
+			calls.Done()
 		}()
 	}
 
-	return approvals >= majority
+	calls.Wait()
+	return len(approvals) >= majority
 }
 
 func (n *node) VerifyBid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
@@ -87,8 +92,6 @@ func (n *node) VerifyBid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
-
-	fmt.Printf("Node %d: Recived bid (bidder %d, amount %d)\n", n.id, in.Bidder, in.Amount)
 
 	if n.highestBid.Amount > in.Amount {
 		return &pb.Ack{Success: false}, nil
@@ -108,7 +111,7 @@ func (n *node) Result(ctx context.Context, in *pb.Empty) (*pb.Outcome, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	fmt.Printf("Node %d: Recived request for result\n", n.id)
+	// TODO: Implement majority read
 
 	return &pb.Outcome{HighestBid: n.highestBid}, nil
 }
