@@ -42,12 +42,12 @@ func (c *Client) StartClient() {
 		input := strings.Split(scanner.Text(), " ")
 		c.mu.Lock()
 
-		if input[0] == "status" {
-			c.status()
-		}
-
 		if input[0] == "bid" {
 			c.bid(input)
+		}
+
+		if input[0] == "result" {
+			c.result()
 		}
 
 		if input[0] == "quit" {
@@ -86,15 +86,6 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 	return reply, nil
 }
 
-func (c *Client) status() {
-	req := &pb.Empty{}
-	reply, err := makeCall(c, pb.NodeClient.Result, req)
-	if err != nil {
-		return
-	}
-	fmt.Printf("Current winner: Client %d, bid %d\n", reply.Winner, reply.BidAmount)
-}
-
 func (c *Client) bid(input []string) {
 	if len(input) != 2 {
 		fmt.Printf("CLIENT (you): Incorrect arguments to place bid. Correct use 'bid <amount>'")
@@ -118,6 +109,15 @@ func (c *Client) bid(input []string) {
 	}
 
 	fmt.Printf("%v\n", reply.Success)
+}
+
+func (c *Client) result() {
+	req := &pb.Empty{}
+	reply, err := makeCall(c, pb.NodeClient.Result, req)
+	if err != nil {
+		return
+	}
+	fmt.Printf("Current winner: Client %d, bid %d\n", reply.Winner, reply.BidAmount)
 }
 
 func (c *Client) testCall() {
