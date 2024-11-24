@@ -18,7 +18,6 @@ type node struct {
 	addr       string
 	network    *nwPkg.Network
 	highestBid *pb.Amount
-	srv        *grpc.Server // temporary TODO: Remove
 }
 
 func newNode(id int, addr string, network *nwPkg.Network) *node {
@@ -27,7 +26,6 @@ func newNode(id int, addr string, network *nwPkg.Network) *node {
 		addr:       addr,
 		network:    network,
 		highestBid: &pb.Amount{Bidder: -1, Amount: 0},
-		srv:        nil,
 	}
 }
 
@@ -40,13 +38,10 @@ func (n *node) startNode() {
 	fmt.Printf("Node %d listening at %v\n", n.id, listener.Addr())
 
 	pb.RegisterNodeServer(grpcServer, n)
-	n.srv = grpcServer
 
 	if grpcServer.Serve(listener) != nil {
 		fmt.Printf("Failed to serve: %v\n", err)
 	}
-
-	fmt.Printf("Node %d stopped!\n", n.id)
 }
 
 // Returns true if majority of network approves given bid.
@@ -121,14 +116,9 @@ func (n *node) Result(ctx context.Context, in *pb.Empty) (*pb.Outcome, error) {
 	return &pb.Outcome{HighestBid: n.highestBid}, nil
 }
 
+// Synthesizes a crash
 func (n *node) Stop(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
-	if n.srv == nil { // this is impossible
-		return nil, fmt.Errorf("node %d was never started", n.id)
-	}
-
-	go func() {
-		n.srv.GracefulStop() // TODO: Proper crash
-	}()
-
+	null := n.network.Nodes[-1]
+	null.Stop(ctx, in)
 	return &pb.Empty{}, nil
 }

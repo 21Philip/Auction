@@ -60,9 +60,7 @@ func (nw *Network) StartNetwork() {
 
 func startNode(nodeId string, nodeAmount string) {
 	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/internal/network/node", nodeId, nodeAmount)
-	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 
 	err := cmd.Start()
 	if err != nil {
@@ -74,19 +72,16 @@ func startNode(nodeId string, nodeAmount string) {
 		fmt.Printf("cmd.Process.Wait failed: %s", err)
 	}
 
+	fmt.Printf("Node %s stopped!\n", nodeId)
 	wg.Done()
 }
 
 // Exits all node processes
 func (nw *Network) StopNetwork() {
-	for id, node := range nw.Nodes {
+	for _, node := range nw.Nodes {
 		ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 		defer cancel()
-
-		_, err := node.Stop(ctx, &pb.Empty{})
-		if err != nil {
-			fmt.Printf("Node %d was already stopped\n", id)
-		}
+		node.Stop(ctx, &pb.Empty{})
 	}
 
 	wg.Wait()
