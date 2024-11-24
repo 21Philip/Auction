@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"sync"
-	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
 	nwPkg "github.com/21Philip/Auction/internal/network"
@@ -50,8 +49,10 @@ func (n *node) startNode() {
 	fmt.Printf("Node %d stopped!\n", n.id)
 }
 
+// Returns true if majority of network approves given bid.
+// Assumes bid is already approved by caller
 func (n *node) getMajorityApproval(bid *pb.Amount) bool {
-	majority := n.network.Size / 2 // Already has approvement from self
+	majority := n.network.Size / 2
 	approvals := make(chan bool, n.network.Size)
 
 	ctx, cancel := context.WithTimeout(context.Background(), nwPkg.Timeout)
@@ -82,7 +83,10 @@ func (n *node) VerifyBid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	if n.highestBid.Amount >= in.Amount {
+	if n.highestBid.Amount > in.Amount {
+		return &pb.Ack{Success: false}, nil
+	}
+	if n.highestBid.Amount == in.Amount && n.highestBid.Bidder != in.Bidder {
 		return &pb.Ack{Success: false}, nil
 	}
 
@@ -98,16 +102,10 @@ func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 		return &pb.Ack{Success: false}, nil
 	}
 
-	// check if majority approve incoming bid
 	if !n.getMajorityApproval(in) {
-		// Timeout client so that it switches
-		// to another node. Could be splitbrain.
-		deadLine, _ := ctx.Deadline()
-		time.Sleep(time.Until(deadLine))
-		return &pb.Ack{Success: false}, nil
+		return nil, fmt.Errorf("splitbrain")
 	}
 
-	// If so, change local leadingBid
 	n.highestBid = in
 	return &pb.Ack{Success: true}, nil
 }
@@ -116,7 +114,9 @@ func (n *node) Result(ctx context.Context, in *pb.Empty) (*pb.Outcome, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	// TODO: Implement majority read
+	if !n.getMajorityApproval(n.highestBid) {
+		return nil, fmt.Errorf("splitbrain")
+	}
 
 	return &pb.Outcome{HighestBid: n.highestBid}, nil
 }
@@ -127,7 +127,7 @@ func (n *node) Stop(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
 	}
 
 	go func() {
-		n.srv.GracefulStop()
+		n.srv.GracefulStop() // TODO: Proper crash
 	}()
 
 	return &pb.Empty{}, nil

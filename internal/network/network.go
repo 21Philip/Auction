@@ -18,10 +18,10 @@ var wg = sync.WaitGroup{}
 
 const (
 	BasePort = 50050
-	Timeout  = 150 * time.Millisecond
+	Timeout  = 200 * time.Millisecond
 )
 
-type Network struct {
+type Network struct { // TODO: Make alias
 	Size  int
 	Nodes map[int]pb.NodeClient // id -> node
 }

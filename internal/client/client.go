@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	timeout = 2 * nwPkg.Timeout // timeout for all calls to server
+	timeout = 2 * nwPkg.Timeout // Timeout for all calls to server
 )
 
 type Client struct {
@@ -138,3 +138,5 @@ func (c *Client) killNode(input []string) {
 		NodeToKill.Stop(context.Background(), req)
 	}
 }
+
+// TODO: make a list method to list known nodes
