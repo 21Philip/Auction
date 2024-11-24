@@ -14,12 +14,12 @@ func main() {
 	addr := ":" + strconv.Itoa(port)
 
 	peerAmount, _ := strconv.Atoi(os.Args[2]) // no
-	nw, err := nwPkg.NewNetwork(peerAmount)
+	network, err := nwPkg.NewNetwork(peerAmount)
 	if err != nil {
 		fmt.Printf("ERROR: Node %d could not be created due to network error: %v", id, err)
 		return
 	}
 
-	node := nwPkg.NewNode(id, addr, nw.Nodes)
-	node.StartNode()
+	node := newNode(id, addr, network)
+	node.startNode()
 }

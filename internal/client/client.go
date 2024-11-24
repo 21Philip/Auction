@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
 	nwPkg "github.com/21Philip/Auction/internal/network"
@@ -15,7 +14,7 @@ import (
 )
 
 const (
-	timeout = 200 * time.Millisecond // timeout for all calls to server
+	timeout = 2 * nwPkg.Timeout // Timeout for all calls to server
 )
 
 type Client struct {
@@ -51,8 +50,8 @@ func (c *Client) StartClient() {
 			break
 		}
 
-		if input[0] == "test" {
-			c.testCall()
+		if input[0] == "kill" {
+			c.killNode(input)
 		}
 	}
 
@@ -63,8 +62,8 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 	var reply Out
 
 	curNode := c.network.Nodes[c.nodeId]
-	if curNode == nil {
-		fmt.Printf("CLIENT (you): Seems all nodes are unavailable. Consider using 'quit' to exit program\n")
+	if curNode == nil { // TODO: Consider cycling nodes
+		fmt.Printf("Client (you): Seems all nodes are unavailable. Consider using 'quit' to exit program\n")
 		return reply, fmt.Errorf("no more nodes")
 	}
 
@@ -73,7 +72,7 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 
 	reply, err := call(curNode, ctx, req)
 	if err != nil {
-		fmt.Printf("CLIENT (you): Request to current node timed out. Establishing new connection\n")
+		fmt.Printf("Client (you): Request to node %d timed out. Establishing new connection\n", c.nodeId)
 		c.nodeId++
 		return makeCall(c, call, req)
 	}
@@ -83,13 +82,12 @@ func makeCall[In any, Out any](c *Client, call func(pb.NodeClient, context.Conte
 
 func (c *Client) bid(input []string) {
 	if len(input) != 2 {
-		fmt.Printf("CLIENT (you): Incorrect arguments to place bid. Correct use 'bid <amount>'\n")
+		fmt.Printf("Client (you): Incorrect arguments to place bid. Correct use 'bid <amount>'\n")
 		return
 	}
-
 	bidAmount, err := strconv.Atoi(input[1])
 	if err != nil {
-		fmt.Printf("CLIENT (you): Cannot convert '%s' to int. Correct use 'bid <amount>'\n", input[1])
+		fmt.Printf("Client (you): Cannot convert '%s' to int. Correct use 'bid <amount>'\n", input[1])
 		return
 	}
 
@@ -100,10 +98,17 @@ func (c *Client) bid(input []string) {
 
 	reply, err := makeCall(c, pb.NodeClient.Bid, req)
 	if err != nil {
+		fmt.Printf("Client (you): Something went wrong. Bid not placed.\n")
 		return
 	}
 
-	fmt.Printf("Response: %v\n", reply.Success)
+	if reply.Success {
+		fmt.Printf("Client (you): Success! Your bid of %d$ has been placed.\n", bidAmount)
+		return
+	}
+
+	fmt.Println("Client (you): Bid too low")
+	c.result()
 }
 
 func (c *Client) result() {
@@ -113,14 +118,25 @@ func (c *Client) result() {
 		return
 	}
 
-	fmt.Printf("Response: Client %d, bid %d\n", reply.Winner, reply.BidAmount)
+	fmt.Printf("Client (you): Highest bidder: %d, bid %d$\n", reply.HighestBid.Bidder, reply.HighestBid.Amount)
 }
 
-func (c *Client) testCall() {
-	req := &pb.Empty{}
-	reply, err := makeCall(c, pb.NodeClient.TestCall, req)
+// For testing
+func (c *Client) killNode(input []string) {
+	if len(input) != 2 {
+		return
+	}
+	nodeId, err := strconv.Atoi(input[1])
 	if err != nil {
 		return
 	}
-	fmt.Printf("%s\n", reply.Payload)
+
+	req := &pb.Empty{}
+	NodeToKill := c.network.Nodes[nodeId]
+
+	if NodeToKill != nil {
+		NodeToKill.Stop(context.Background(), req)
+	}
 }
+
+// TODO: make a list method to list known nodes

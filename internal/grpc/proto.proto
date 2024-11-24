@@ -2,10 +2,13 @@ syntax = "proto3";
 option go_package = "github.com/21Philip/Auction/grpc";
 
 service Node {
+    // External
     rpc Bid (Amount) returns (Ack);
     rpc Result (Empty) returns (Outcome);
+
+    // Internal
+    rpc VerifyBid(Amount) returns (Ack);
     rpc Stop (Empty) returns (Empty);
-    rpc TestCall (Empty) returns (Test);
 }
 
 message Amount {
@@ -17,13 +20,8 @@ message Ack {
     bool success = 1;
 }
 
-message Empty {}
-
 message Outcome {
-    int32 winner = 1;
-    int32 bidAmount = 2;
+    Amount highestBid = 1;
 }
 
-message Test {
-    string payload = 1;
-}
+message Empty {}

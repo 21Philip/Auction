@@ -18,10 +18,10 @@ var wg = sync.WaitGroup{}
 
 const (
 	BasePort = 50050
-	timeout  = 200 * time.Millisecond
+	Timeout  = 200 * time.Millisecond
 )
 
-type Network struct {
+type Network struct { // TODO: Make alias
 	Size  int
 	Nodes map[int]pb.NodeClient // id -> node
 }
@@ -59,7 +59,7 @@ func (nw *Network) StartNetwork() {
 }
 
 func startNode(nodeId string, nodeAmount string) {
-	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/internal/network/create-node", nodeId, nodeAmount)
+	cmd := exec.Command("go", "run", "github.com/21Philip/Auction/internal/network/node", nodeId, nodeAmount)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -80,7 +80,7 @@ func startNode(nodeId string, nodeAmount string) {
 // Exits all node processes
 func (nw *Network) StopNetwork() {
 	for id, node := range nw.Nodes {
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), Timeout)
 		defer cancel()
 
 		_, err := node.Stop(ctx, &pb.Empty{})
