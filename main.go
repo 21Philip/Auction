@@ -7,6 +7,7 @@ import (
 	nwPkg "github.com/21Philip/Auction/internal/network"
 )
 
+// TODO: Improve control flow
 func main() {
 	network, err := nwPkg.NewNetwork(5)
 	if err != nil {
