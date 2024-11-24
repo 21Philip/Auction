@@ -50,8 +50,8 @@ func (c *Client) StartClient() {
 			break
 		}
 
-		if input[0] == "test" {
-			c.testCall()
+		if input[0] == "kill" {
+			c.killNode(input)
 		}
 	}
 
@@ -85,7 +85,6 @@ func (c *Client) bid(input []string) {
 		fmt.Printf("Client (you): Incorrect arguments to place bid. Correct use 'bid <amount>'\n")
 		return
 	}
-
 	bidAmount, err := strconv.Atoi(input[1])
 	if err != nil {
 		fmt.Printf("Client (you): Cannot convert '%s' to int. Correct use 'bid <amount>'\n", input[1])
@@ -119,14 +118,23 @@ func (c *Client) result() {
 		return
 	}
 
-	fmt.Printf("Client (you): Highest bidder: %d, bid %d\n", reply.HighestBid.Bidder, reply.HighestBid.Amount)
+	fmt.Printf("Client (you): Highest bidder: %d, bid %d$\n", reply.HighestBid.Bidder, reply.HighestBid.Amount)
 }
 
-func (c *Client) testCall() {
-	req := &pb.Empty{}
-	reply, err := makeCall(c, pb.NodeClient.TestCall, req)
+// For testing
+func (c *Client) killNode(input []string) {
+	if len(input) != 2 {
+		return
+	}
+	nodeId, err := strconv.Atoi(input[1])
 	if err != nil {
 		return
 	}
-	fmt.Printf("%s\n", reply.Payload)
+
+	req := &pb.Empty{}
+	NodeToKill := c.network.Nodes[nodeId]
+
+	if NodeToKill != nil {
+		NodeToKill.Stop(context.Background(), req)
+	}
 }

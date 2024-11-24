@@ -9,9 +9,6 @@ service Node {
     // Internal
     rpc VerifyBid(Amount) returns (Ack);
     rpc Stop (Empty) returns (Empty);
-
-    // Temporary
-    rpc TestCall (Empty) returns (Test);
 }
 
 message Amount {
@@ -28,7 +25,3 @@ message Outcome {
 }
 
 message Empty {}
-
-message Test {
-    string payload = 1;
-}

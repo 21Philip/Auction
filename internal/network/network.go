@@ -18,7 +18,7 @@ var wg = sync.WaitGroup{}
 
 const (
 	BasePort = 50050
-	Timeout  = 100 * time.Millisecond
+	Timeout  = 150 * time.Millisecond
 )
 
 type Network struct {

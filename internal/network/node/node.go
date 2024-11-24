@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"time"
 
 	pb "github.com/21Philip/Auction/internal/grpc"
 	nwPkg "github.com/21Philip/Auction/internal/network"
@@ -81,7 +82,7 @@ func (n *node) VerifyBid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	if n.highestBid.Amount > in.Amount {
+	if n.highestBid.Amount >= in.Amount {
 		return &pb.Ack{Success: false}, nil
 	}
 
@@ -93,14 +94,16 @@ func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	if n.highestBid.Amount > in.Amount {
+	if n.highestBid.Amount >= in.Amount {
 		return &pb.Ack{Success: false}, nil
 	}
 
 	// check if majority approve incoming bid
 	if !n.getMajorityApproval(in) {
-		// TODO: Timeout client so that it switches
+		// Timeout client so that it switches
 		// to another node. Could be splitbrain.
+		deadLine, _ := ctx.Deadline()
+		time.Sleep(time.Until(deadLine))
 		return &pb.Ack{Success: false}, nil
 	}
 
@@ -128,14 +131,4 @@ func (n *node) Stop(ctx context.Context, in *pb.Empty) (*pb.Empty, error) {
 	}()
 
 	return &pb.Empty{}, nil
-}
-
-func (n *node) TestCall(ctx context.Context, in *pb.Empty) (*pb.Test, error) {
-	go n.crash()
-	response := fmt.Sprintf("Response from node %d", n.id)
-	return &pb.Test{Payload: response}, nil
-}
-
-func (n *node) crash() {
-	n.srv.GracefulStop()
 }
