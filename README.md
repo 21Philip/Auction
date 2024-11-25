@@ -27,6 +27,3 @@ Once the program is started you can type any of the following commands to intera
 
 ## Requirements
 The program is build using go version 1.23.0
-
-## Implementation notes
-We assume a network that has reliable, ordered message transport, where transmissions to non-failed nodes complete within a known time-limit.
