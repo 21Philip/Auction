@@ -30,5 +30,3 @@ The program is build using go version 1.23.0
 
 ## Implementation notes
 We assume a network that has reliable, ordered message transport, where transmissions to non-failed nodes complete within a known time-limit.
-The implentation would mostly work without this assumption except for some split brain edge cases, where a client could get stuck on a node that
-is not aware that its internal bid is too high. 
