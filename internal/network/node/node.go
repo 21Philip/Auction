@@ -93,7 +93,11 @@ func (n *node) Bid(ctx context.Context, in *pb.Amount) (*pb.Ack, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 
-	if n.highestBid.Amount >= in.Amount {
+	if n.highestBid.Amount > in.Amount {
+		return &pb.Ack{Success: false}, nil
+	}
+
+	if n.highestBid.Amount == in.Amount && n.highestBid.Bidder != in.Bidder {
 		return &pb.Ack{Success: false}, nil
 	}
 
